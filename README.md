@@ -5876,6 +5876,59 @@ After completing all three projects, you will have:
 
 ---
 
+
+# Advanced HTML Interview Questions
+
+## 1. Semantic HTML
+1. What is semantic HTML and why is it important for accessibility, SEO, and maintainability?
+2. Explain the differences between `<section>`, `<article>`, `<aside>`, `<main>`, and `<nav>`.
+3. How does semantic structure improve screen reader navigation?
+4. What are HTML5 content categories and how do they influence element placement?
+5. Describe how the browser parses HTML into a DOM tree. Explain each phase.
+
+## 2. Forms & Validation
+6. How does native HTML5 validation work compared to custom JavaScript validation?
+7. When should you use `pattern` attributes vs. specific input types for validation?
+8. What is the purpose of `novalidate` and when should you use it?
+9. How does `<datalist>` work and what are practical use cases for it?
+10. What security concerns exist with hidden inputs and autocomplete fields?
+
+## 3. Performance, Rendering & Optimization
+11. Explain the difference between `async` and `defer` script loading.
+12. What is the Critical Rendering Path and how does HTML affect it?
+13. What are preload, prefetch, and prerender, and when should each be used?
+14. How does server-side rendering (SSR) impact HTML rendering and hydration?
+15. What is layout thrashing and how can HTML structure help avoid it?
+
+## 4. Accessibility (A11y)
+16. What are ARIA roles and when should you use them instead of native HTML elements?
+17. How do `aria-label`, `aria-labelledby`, and `aria-describedby` differ?
+18. What accessibility issues arise when using non-semantic elements like `<div>` for UI components?
+19. How do you ensure accessible forms using labels, fieldsets, and legends?
+20. How does tab order work in HTML and what role does `tabindex` play?
+
+## 5. Media, Graphics & Advanced Elements
+21. How do `<picture>` and `srcset` improve image responsiveness?
+22. What are the differences between `<canvas>` and `<svg>`?
+23. How do you optimize embedding video/audio for performance and accessibility?
+24. What is `loading="lazy"` and how does it impact performance?
+25. How do Web Components interact with HTML structure?
+
+## 6. HTML APIs & Browser Features
+26. Explain how the `contenteditable` attribute works and its limitations.
+27. What is the Shadow DOM and how does it affect styling and accessibility?
+28. What is the purpose of the HTML Drag and Drop API?
+29. How does the Intersection Observer relate to HTML elements?
+30. What are custom elements and how do they extend HTML?
+
+## 7. Security & Best Practices
+31. What HTML-level protections exist against XSS?
+32. Why should inline event handlers (like `onclick`) generally be avoided?
+33. How do sandboxed iframes improve security?
+34. What are the security considerations when using user-generated HTML?
+35. How do CSP (Content Security Policy) headers influence HTML?
+
+
 **🎉 Good luck with your interview preparation! These projects will make you stand out!**
 
 
