@@ -5877,56 +5877,207 @@ After completing all three projects, you will have:
 ---
 
 
-# Advanced HTML Interview Questions
+## Advanced HTML Interview Questions
 
-## 1. Semantic HTML
-1. What is semantic HTML and why is it important for accessibility, SEO, and maintainability?
-2. Explain the differences between `<section>`, `<article>`, `<aside>`, `<main>`, and `<nav>`.
-3. How does semantic structure improve screen reader navigation?
-4. What are HTML5 content categories and how do they influence element placement?
-5. Describe how the browser parses HTML into a DOM tree. Explain each phase.
+### 1. What is the difference between `<script>`, `<script defer>`, and `<script async>`, and when would you use each?
 
-## 2. Forms & Validation
-6. How does native HTML5 validation work compared to custom JavaScript validation?
-7. When should you use `pattern` attributes vs. specific input types for validation?
-8. What is the purpose of `novalidate` and when should you use it?
-9. How does `<datalist>` work and what are practical use cases for it?
-10. What security concerns exist with hidden inputs and autocomplete fields?
+**Answer:** Regular `<script>` blocks HTML parsing until the script downloads and executes. `<script defer>` downloads in parallel with HTML parsing but executes only after parsing completes, maintaining order between multiple deferred scripts. `<script async>` downloads in parallel and executes immediately upon completion, potentially interrupting HTML parsing, with no guaranteed execution order. Use `defer` for scripts that depend on DOM or other scripts; use `async` for independent scripts like analytics.
 
-## 3. Performance, Rendering & Optimization
-11. Explain the difference between `async` and `defer` script loading.
-12. What is the Critical Rendering Path and how does HTML affect it?
-13. What are preload, prefetch, and prerender, and when should each be used?
-14. How does server-side rendering (SSR) impact HTML rendering and hydration?
-15. What is layout thrashing and how can HTML structure help avoid it?
+### 2. Why is `<button type="button">` important inside a form, and what happens if you omit the type attribute?
 
-## 4. Accessibility (A11y)
-16. What are ARIA roles and when should you use them instead of native HTML elements?
-17. How do `aria-label`, `aria-labelledby`, and `aria-describedby` differ?
-18. What accessibility issues arise when using non-semantic elements like `<div>` for UI components?
-19. How do you ensure accessible forms using labels, fieldsets, and legends?
-20. How does tab order work in HTML and what role does `tabindex` play?
+**Answer:** Without an explicit `type` attribute, buttons default to `type="submit"` inside forms. This means clicking the button will submit the form, which is often unintended for buttons meant to perform client-side actions like opening modals or adding form fields. Always specify `type="button"` for non-submit buttons to prevent accidental form submissions and unexpected page reloads.
 
-## 5. Media, Graphics & Advanced Elements
-21. How do `<picture>` and `srcset` improve image responsiveness?
-22. What are the differences between `<canvas>` and `<svg>`?
-23. How do you optimize embedding video/audio for performance and accessibility?
-24. What is `loading="lazy"` and how does it impact performance?
-25. How do Web Components interact with HTML structure?
+### 3. Explain the security implications of using `target="_blank"` and how to mitigate them.
 
-## 6. HTML APIs & Browser Features
-26. Explain how the `contenteditable` attribute works and its limitations.
-27. What is the Shadow DOM and how does it affect styling and accessibility?
-28. What is the purpose of the HTML Drag and Drop API?
-29. How does the Intersection Observer relate to HTML elements?
-30. What are custom elements and how do they extend HTML?
+**Answer:** When using `target="_blank"`, the opened page gains access to the original window via `window.opener`, enabling potential phishing attacks where the new page redirects the original tab to a malicious site. Mitigate this by adding `rel="noopener noreferrer"` to the link, which prevents the new page from accessing `window.opener` and blocks the referrer header from being sent.
 
-## 7. Security & Best Practices
-31. What HTML-level protections exist against XSS?
-32. Why should inline event handlers (like `onclick`) generally be avoided?
-33. How do sandboxed iframes improve security?
-34. What are the security considerations when using user-generated HTML?
-35. How do CSP (Content Security Policy) headers influence HTML?
+### 4. What is the purpose of the `loading="lazy"` attribute on images, and what are its limitations?
+
+**Answer:** The `loading="lazy"` attribute enables native lazy loading, deferring image downloads until they're near the viewport, improving initial page load performance and reducing bandwidth usage. Limitations include: it shouldn't be used on above-the-fold images (causes layout shift), browser support varies, and the exact threshold for "near viewport" is browser-dependent. Critical images should use `loading="eager"` or omit the attribute.
+
+### 5. How does the `<picture>` element differ from `srcset`, and when should you use each?
+
+**Answer:** `srcset` is for resolution switching (serving different resolutions of the same image based on device pixel ratio or viewport width), while `<picture>` enables art direction (serving completely different images based on media queries, format support, or other conditions). Use `srcset` when you have the same image at different sizes; use `<picture>` when you need different crops, aspect ratios, or want to provide modern formats like WebP with fallbacks.
+
+### 6. What happens when you nest a `<button>` inside an `<a>` tag, or vice versa, and why is this problematic?
+
+**Answer:** Nesting interactive elements violates HTML specifications and creates accessibility issues because screen readers cannot properly convey nested interactive roles, and keyboard navigation becomes ambiguous. Browsers may render it inconsistently, and the behavior of which element's action fires (link navigation vs button click) is unpredictable. Always use one interactive element and style it appropriately, or use JavaScript to handle the interaction separately.
+
+### 7. Explain the difference between `contenteditable="true"` and a `<textarea>`, including use cases and limitations.
+
+**Answer:** `contenteditable` allows any element to become editable and preserves rich formatting (bold, links, nested elements), making it suitable for WYSIWYG editors. `<textarea>` only accepts plain text but provides better form integration, automatic serialization, and consistent behavior. `contenteditable` has security risks (can execute scripts if not sanitized), inconsistent browser behavior, and complex state management. Use `<textarea>` for simple text input; use `contenteditable` only when rich formatting is essential.
+
+### 8. What is the purpose of `<link rel="preconnect">`, `<link rel="dns-prefetch">`, and `<link rel="preload">`, and how do they differ?
+
+**Answer:** `dns-prefetch` only resolves DNS early, `preconnect` performs DNS lookup, TCP handshake, and TLS negotiation, while `preload` actually fetches the resource. `preload` is highest priority and should be used sparingly for critical resources needed immediately (fonts, critical CSS). `preconnect` is for third-party origins you'll use soon. `dns-prefetch` is a lightweight hint for potential connections. Overusing these directives wastes bandwidth and can degrade performance.
+
+### 9. How does the browser determine which `<source>` to use in a `<video>` or `<audio>` element?
+
+**Answer:** The browser evaluates `<source>` elements in order from top to bottom, checking each against its codec support and the `type` attribute (MIME type with optional codecs parameter). It selects the first source it can play and ignores the rest. If no sources are supported, it falls back to content inside the `<video>`/`<audio>` tags. The order matters significantly—place preferred formats (like WebM or AV1) first, then fallbacks (like MP4).
+
+### 10. What is the difference between `aria-label`, `aria-labelledby`, and `aria-describedby`?
+
+**Answer:** `aria-label` provides a direct text label for screen readers, overriding any visible text. `aria-labelledby` references one or more element IDs whose text content becomes the label, allowing reuse of existing visible text and supporting multiple sources. `aria-describedby` provides supplementary information (like help text or error messages) read after the label. Use `aria-labelledby` when visible labels exist, `aria-label` for icon-only buttons, and `aria-describedby` for additional context.
+
+### 11. Explain the security model of the `sandbox` attribute on iframes and its different flag values.
+
+**Answer:** The `sandbox` attribute applies restrictions to iframe content, treating it as from a unique origin by default. Without flags, it blocks scripts, forms, popups, same-origin access, and more. Flags like `allow-scripts`, `allow-forms`, `allow-same-origin`, `allow-popups` selectively enable features. Never combine `allow-scripts` and `allow-same-origin` for untrusted content, as this essentially removes sandboxing. Use `sandbox` for embedding third-party content to mitigate XSS and clickjacking risks.
+
+### 12. What is the difference between `required`, `aria-required`, and using `pattern` for validation?
+
+**Answer:** `required` is native HTML5 validation that prevents form submission and triggers browser validation UI, working without JavaScript. `aria-required="true"` only announces the requirement to screen readers but doesn't enforce it—use it for custom validation. `pattern` validates input against a regex but doesn't indicate empty fields are invalid unless combined with `required`. Always use native `required` for enforcement, add `aria-required` only if using custom validation, and use `pattern` for format validation.
+
+### 13. How do `<meta>` tags with `http-equiv` differ from HTTP headers, and which takes precedence?
+
+**Answer:** `<meta http-equiv>` simulates HTTP headers but is processed by the browser after the HTML document starts parsing, while actual HTTP headers are processed before any content. HTTP headers generally take precedence and are more secure (can't be injected via XSS). Critical headers like `Content-Security-Policy` or `X-Frame-Options` should be sent as real HTTP headers, not meta tags, because meta tags are evaluated too late to protect against some attacks.
+
+### 14. What is the purpose of the `autocomplete` attribute, and how does it differ from `autocorrect` and `autocapitalize`?
+
+**Answer:** `autocomplete` controls browser autofill behavior with standardized tokens (like `email`, `tel`, `cc-number`) that help browsers provide accurate suggestions and enable proper keyboard types on mobile. `autocorrect` (iOS Safari) controls spell-checking corrections, while `autocapitalize` controls automatic capitalization of user input. Use proper `autocomplete` values to improve form UX and help password managers; use `autocorrect="off"` for code, emails, or usernames.
+
+### 15. Explain the difference between `<datalist>`, `<select>`, and `<input type="text">` with suggestions.
+
+**Answer:** `<select>` restricts users to predefined options only. `<datalist>` provides suggestions for an `<input>` but allows freeform text entry—users can type anything or choose from suggestions. A plain `<input>` with JavaScript-powered suggestions offers more control but requires custom implementation. Use `<select>` for strict choices, `<datalist>` for flexible input with hints (like city names), and custom implementations when you need advanced features like async search or custom rendering.
+
+### 16. What happens when you set `display: none` via CSS versus `hidden` attribute versus `aria-hidden="true"`?
+
+**Answer:** `display: none` removes the element from both visual and accessibility trees—screen readers won't announce it. The `hidden` attribute does the same (equivalent to `display: none` in browser default styles). `aria-hidden="true"` hides the element only from screen readers but keeps it visually rendered and interactive. Use `hidden` for truly hidden content, use `aria-hidden` to hide decorative elements from screen readers while keeping them visible, and never hide focusable elements with `aria-hidden`.
+
+### 17. How does the browser handle `<base>` tag, and what are the risks of using it?
+
+**Answer:** The `<base>` tag sets the base URL for all relative URLs in the document, affecting links, images, scripts, and stylesheets. If an attacker can inject a `<base>` tag (via XSS), they can redirect all relative resources to malicious servers, stealing credentials or injecting malicious code. Use it cautiously, only in controlled environments, always validate/sanitize if the base URL comes from user input, and prefer absolute URLs or configure resources at the server level.
+
+### 18. What is the difference between `<template>`, `<script type="text/template">`, and innerHTML for client-side templates?
+
+**Answer:** `<template>` is the proper HTML5 element for inert markup—its content is parsed but not rendered, doesn't execute scripts, and can be efficiently cloned via `content.cloneNode()`. `<script type="text/template">` keeps content as text (not parsed DOM) and requires innerHTML parsing, which is slower and can't contain scripts. Using innerHTML directly is fastest for simple cases but has XSS risks if content isn't sanitized. Use `<template>` for complex, reusable templates in modern applications.
+
+### 19. Explain how `inputmode` differs from `type` on input elements and when to use each.
+
+**Answer:** The `type` attribute defines the input's semantic meaning, validation rules, and default appearance (e.g., `type="email"` validates email format). `inputmode` only affects the virtual keyboard shown on mobile devices (e.g., `inputmode="numeric"` shows a number pad). Use both together: `type="text" inputmode="numeric"` for inputs like credit cards that need number keyboards but shouldn't use `type="number"` (which adds spinners and has limitations). This separation provides better control over validation vs. input method.
+
+### 20. What are the implications of using `formnovalidate` on a submit button?
+
+**Answer:** `formnovalidate` on a submit button bypasses all HTML5 validation for that specific submission, ignoring `required`, `pattern`, `min`, `max`, etc. This is useful for "Save as Draft" or "Cancel" buttons that shouldn't block submission due to incomplete data. However, server-side validation is still essential since client-side validation can be bypassed. Use it intentionally for alternate submission flows, not as a shortcut around proper validation.
+
+### 21. How does the `enterkeyhint` attribute improve mobile UX, and what are the available values?
+
+**Answer:** `enterkeyhint` customizes the label on the Enter key of mobile virtual keyboards to match the action context, improving clarity and UX. Values include `enter` (default), `done` (close keyboard), `go` (navigate/submit), `next` (move to next field), `previous`, `search` (perform search), and `send` (send message). Use `search` on search inputs, `next` on forms to guide users through fields, and `done` on the last field to close the keyboard—these visual hints significantly improve mobile form completion rates.
+
+### 22. What is the security risk of using `<iframe>` without `sandbox`, and how does `allow-same-origin` impact security?
+
+**Answer:** Without `sandbox`, an iframe has full capabilities including executing scripts, accessing cookies, and potentially accessing the parent window if same-origin. Adding `allow-same-origin` to a sandboxed iframe that also has `allow-scripts` is dangerous because the iframe can remove its own sandbox attribute via JavaScript, effectively bypassing all restrictions. For untrusted content, use `sandbox` without `allow-same-origin`, or if you need same-origin, don't include `allow-scripts`.
+
+### 23. Explain the difference between `<dialog>` with `show()` versus `showModal()`, and the importance of the `::backdrop` pseudo-element.
+
+**Answer:** `show()` displays the dialog as a regular element without trapping focus, allowing interaction with the rest of the page. `showModal()` creates a modal dialog with a `::backdrop` overlay that blocks interaction with the rest of the page, traps focus within the dialog, and can be closed with the Esc key. The `::backdrop` pseudo-element can be styled to create overlays. Always use `showModal()` for dialogs requiring user attention, and implement proper focus management and keyboard accessibility.
+
+### 24. How does the `inert` attribute affect an element and its descendants?
+
+**Answer:** The `inert` attribute makes an element and all its descendants non-interactive—they can't receive focus, clicks, or selection, and are ignored by assistive technologies. It's useful for temporarily disabling sections of the page (like content behind a modal) without removing them from the DOM or managing individual element states. Unlike `disabled`, which only works on form elements, `inert` works on any element and properly handles accessibility by removing the entire subtree from the accessibility tree.
+
+### 25. What is the purpose of `<link rel="modulepreload">`, and how does it differ from regular `<link rel="preload">`?
+
+**Answer:** `rel="modulepreload"` is specifically for ES modules, fetching the module and its entire dependency tree efficiently. Unlike `rel="preload" as="script"`, which only fetches a single file, `modulepreload` parses the module to discover imports and preloads those too, and stores the result in the module cache. It also applies CORS by default. Use it for critical JavaScript modules in modern applications to reduce waterfall requests and improve startup performance.
+
+### 26. How do `<link rel="prefetch">` and `<link rel="prerender">` differ in browser behavior and resource usage?
+
+**Answer:** `prefetch` downloads resources at low priority during idle time for likely future navigations but doesn't process them. `prerender` (deprecated but replaced by Speculation Rules API) would fully load and render the page invisibly, consuming significant memory and CPU. `prefetch` is safe for loading next-page resources; prerendering should be used extremely sparingly due to resource costs. Modern approaches use Navigation Preload API or Speculation Rules API with `prefetch`/`prerender` rules for more controlled predictive loading.
+
+### 27. What is the difference between `rel="nofollow"`, `rel="ugc"`, and `rel="sponsored"` on links?
+
+**Answer:** These `rel` attributes provide hints to search engines about link trust and purpose. `nofollow` indicates the link shouldn't pass ranking credit (general distrust). `ugc` (user-generated content) identifies links from untrusted sources like comments or forums. `sponsored` marks paid placements or advertising links. Using appropriate attributes helps search engines understand your site's link structure and avoids penalties for unnatural link patterns. You can combine them: `rel="nofollow ugc"` for user-submitted links.
+
+### 28. Explain how `<meta name="viewport">` affects page rendering and what `width=device-width, initial-scale=1` means.
+
+**Answer:** The viewport meta tag controls how mobile browsers render and scale pages. Without it, mobile browsers assume desktop layouts (~980px) and zoom out. `width=device-width` sets the viewport width to match the device's screen width in CSS pixels. `initial-scale=1` prevents auto-zoom and sets 1 CSS pixel = 1 device-independent pixel. Together, they enable responsive design. Avoid `user-scalable=no` or `maximum-scale=1` as these prevent accessibility zoom and violate WCAG guidelines.
+
+### 29. What is the purpose of the `blocking="render"` attribute on `<link>` and `<script>` elements?
+
+**Answer:** The `blocking` attribute explicitly marks resources as render-blocking, giving developers control over what the browser should wait for before displaying content. The default value `blocking="render"` blocks rendering until the resource loads. This is useful for ensuring critical CSS or fonts load before initial paint, preventing Flash of Unstyled Content (FOUC). You can remove render-blocking behavior by omitting the attribute or handling resources differently (async, defer), but use it intentionally for truly critical resources.
+
+### 30. How does `<form method="dialog">` work with the `<dialog>` element, and what is its practical use?
+
+**Answer:** When a form inside a `<dialog>` has `method="dialog"`, submitting the form closes the dialog instead of making an HTTP request. The submitting button's `value` becomes the dialog's return value (accessible via `dialog.returnValue`). This is useful for confirmation dialogs, modal forms, or selection interfaces where you want to capture user choice without page navigation. Combined with the `formmethod="dialog"` attribute on individual buttons, you can have some buttons close the dialog while others submit normally.
+
+### 31. What is the security implication of using `target="_blank"` with `download` attribute, and how should downloads be handled securely?
+
+**Answer:** The `download` attribute forces files to download rather than navigate, but combined with `target="_blank"` on untrusted URLs, it can still create `window.opener` access issues. Additionally, downloading files from user-controlled URLs risks malware distribution or phishing. Always add `rel="noopener"`, validate file types and sources server-side, implement Content-Security-Policy headers, use `Content-Disposition: attachment` in HTTP headers, and consider using blob URLs with verified content for sensitive downloads.
+
+### 32. Explain the difference between `<input type="search">` and `<input type="text">` beyond styling.
+
+**Answer:** Beyond the different appearance (rounded corners, clear button on many browsers), `type="search"` fields don't record history in form autocomplete by default, making them better for privacy-sensitive searches. They also trigger the search keyboard on mobile devices (with a "search" button instead of "enter"). The `incremental` attribute (WebKit) fires input events as you type. For accessibility, they're announced differently by screen readers. Use `type="search"` specifically for search inputs to provide appropriate UX signals.
+
+### 33. How does `<link rel="canonical">` affect SEO, and what happens when there are multiple canonical tags?
+
+**Answer:** The canonical tag tells search engines which URL is the preferred version when duplicate content exists across multiple URLs (pagination, tracking parameters, HTTP/HTTPS variants). Search engines consolidate ranking signals to the canonical URL. If multiple canonical tags exist, search engines choose one (usually the first or most authoritative) or may ignore them entirely. Self-referencing canonicals are good practice even on original pages to prevent parameter pollution. Always use absolute URLs and ensure the canonical URL is actually accessible.
+
+### 34. What is the purpose of `<input type="hidden">`, and what are its security considerations?
+
+**Answer:** Hidden inputs store data that's submitted with forms but not visible to users, commonly used for CSRF tokens, IDs, or state information. However, they're not secure—users can view and modify them via DevTools or by intercepting requests. Never store sensitive data or rely on them for authentication. Always validate hidden input values server-side, use them only for non-sensitive reference data, and employ proper CSRF protection separately. For security-critical data, use server-side sessions instead.
+
+### 35. Explain how `<meta name="theme-color">` works and its impact on user experience.
+
+**Answer:** The theme-color meta tag sets the color of the browser UI (address bar, task switcher) on mobile browsers and PWAs, creating a more immersive app-like experience. You can use media queries to set different colors for light/dark mode: `<meta name="theme-color" content="#fff" media="(prefers-color-scheme: light)">`. The color should match your site's header or dominant brand color. This improves perceived performance and polish but only works on supporting browsers (primarily mobile Chrome, Safari, Edge).
+
+### 36. What is the difference between `role="button"` on a `<div>` versus using an actual `<button>` element?
+
+**Answer:** Using `role="button"` on a div provides the semantic button role to screen readers but doesn't add keyboard functionality—you must manually implement Enter and Space key handling, focus management, and disabled states. A native `<button>` includes all this functionality automatically, is focusable by default, works with form submission, and provides consistent cross-browser behavior. Only use `role="button"` on non-button elements when you have no alternative and then implement complete keyboard and focus support.
+
+### 37. How do `<input type="date">`, `<input type="datetime-local">`, and `<input type="time">` handle time zones?
+
+**Answer:** These inputs have no time zone information—they represent local times in the user's system time zone. `datetime-local` appears to include time but doesn't store or transmit zone data. This causes issues when users in different zones submit forms. For true time zone handling, use `<input type="datetime-local">` with a separate time zone selector, or use JavaScript libraries to convert to UTC before submission. Server-side, always store times in UTC and convert based on user's known time zone.
+
+### 38. What is the purpose of `<link rel="alternate">` with `hreflang`, and how does it affect international SEO?
+
+**Answer:** `rel="alternate" hreflang` tells search engines about translated or regional versions of pages, helping serve the right language version to users. Each page should link to all its variants including itself. Format: `<link rel="alternate" hreflang="es-MX" href="https://example.com/es-mx/page">`. Use ISO 639-1 language codes and optional ISO 3166-1 Alpha 2 country codes. Include `hreflang="x-default"` for a default catch-all page. Incorrect implementation can hurt SEO—ensure reciprocal links exist on all language versions.
+
+### 39. Explain the security risks of `<meta http-equiv="refresh">` and why it's problematic for accessibility.
+
+**Answer:** Meta refresh redirects or reloads pages after a delay, which is problematic for accessibility (users lose context, screen readers can't navigate properly, violates WCAG Success Criterion 2.2.1). It's also a security risk because attackers can use it for phishing (quick redirects to malicious sites) or can inject it via XSS to cause denial-of-service through infinite reload loops. Use HTTP 301/302 redirects for permanent/temporary redirects, and JavaScript with user consent for delayed actions.
+
+### 40. What is the difference between `<abbr>`, `<acronym>`, and when should you use the `title` attribute?
+
+**Answer:** `<abbr>` is the semantic element for abbreviations and acronyms (note: `<acronym>` is obsolete in HTML5). The `title` attribute on `<abbr>` provides the full expansion. However, `title` has accessibility issues—it's not reliably exposed to screen readers and isn't keyboard-accessible. Better practice: spell out the full term on first use followed by abbreviation in parentheses, then use `<abbr>` for subsequent instances. For critical expansions, use `aria-label` on the `<abbr>` element instead of `title`.
+
+### 41. How does the `importance` attribute (now `fetchpriority`) affect resource loading, and when should you use it?
+
+**Answer:** `fetchpriority` (formerly `importance`) hints to browsers which resources are critical, with values `high`, `low`, or `auto`. Use `fetchpriority="high"` on above-the-fold images or critical CSS to prioritize their download, and `fetchpriority="low"` on below-the-fold or less important resources. However, overuse negates its purpose—use it sparingly only on resources that truly impact Largest Contentful Paint (LCP). Browsers already have good prioritization heuristics; this attribute is for fine-tuning specific bottlenecks identified through performance profiling.
+
+### 42. What is the purpose of `<input type="color">`, and what are its limitations across browsers?
+
+**Answer:** `type="color"` provides a native color picker UI, returning hex values. However, it has significant limitations: no alpha/transparency support (only RGB hex), no recent color history in some browsers, inconsistent UI across platforms, and no native support for color palettes or custom value entry. For professional applications requiring alpha channels, palettes, or precise input, use JavaScript color picker libraries. For simple use cases where basic colors suffice, the native picker provides good UX without external dependencies.
+
+### 43. Explain how `<textarea>` handles `maxlength`, `minlength`, and `wrap` attributes.
+
+**Answer:** `maxlength` restricts character count (preventing further input), `minlength` sets minimum characters for validation (not preventing submission attempts, but triggering validation messages). The `wrap` attribute controls how line breaks are submitted: `wrap="soft"` (default) doesn't send line breaks in the value, while `wrap="hard"` includes them (requires `cols` attribute). For visual line breaks without `<br>` in submitted data, use `soft`. For preserving formatting (like poetry or code), use `hard` or handle formatting server-side from `soft` data.
+
+### 44. What are the security implications of `<embed>`, `<object>`, and when should you use them?
+
+**Answer:** `<embed>` and `<object>` can embed arbitrary file types including plugins (Flash, PDF), creating security risks—plugins may have vulnerabilities, can execute code, and access local resources. Modern best practice avoids them: use native HTML5 video/audio, embed PDFs via `<iframe>` with sandboxing, or use JavaScript libraries for document viewing. If necessary, always implement Content-Security-Policy headers to restrict sources, sandbox iframes containing these elements, and validate MIME types server-side.
+
+### 45. How does `<input type="file" accept>` work, and why shouldn't you rely on it for security?
+
+**Answer:** The `accept` attribute filters which files appear in the file picker dialog (by MIME type or extension like `accept=".jpg,.png"` or `accept="image/*"`). However, it's purely client-side convenience—users can bypass it by switching the picker to "All Files" or by sending requests directly. Never rely on `accept` for security or validation. Always validate file types, sizes, and contents server-side by checking magic bytes (file signatures), not just extensions or MIME types, which can be spoofed.
+
+### 46. What is the purpose of `<meta name="robots">`, and how does it differ from `robots.txt`?
+
+**Answer:** `<meta name="robots" content="noindex,nofollow">` controls how search engines index and follow links on a specific page. `robots.txt` controls crawler access to URLs before they're fetched. Meta robots take precedence for indexed pages but require the page to be crawled first. Use `robots.txt` to block resource-intensive crawling or private sections entirely; use meta tags for public pages you don't want indexed. Combining both provides defense in depth, but remember meta tags won't prevent determined users from accessing content.
+
+### 47. Explain the difference between `<output>` and `<input readonly>` for displaying calculated values.
+
+**Answer:** `<output>` is semantically designed for displaying calculation results or form action outcomes, typically populated via JavaScript. It's implicitly live region for screen readers and can use the `for` attribute to reference inputs used in calculation, establishing semantic relationships. `<input readonly>` is focusable, included in form submissions, and part of the form's validation context. Use `<output>` for displaying derived values not submitted (totals, conversions); use `<input readonly>` for pre-filled data that should be submitted but not edited.
+
+### 48. What is the impact of using `<table role="presentation">` versus properly structured data tables?
+
+**Answer:** `role="presentation"` (or `role="none"`) removes table semantics from the accessibility tree, treating it as a layout hack. This should only be used for legacy layouts, never for actual tabular data. Properly structured data tables with `<thead>`, `<tbody>`, `<th scope="col/row">`, and `<caption>` are essential for screen reader users to navigate and understand data relationships. Misusing `role="presentation"` on data tables destroys accessibility, while using tables for layout (even with the role) is outdated—use CSS Grid/Flexbox instead.
+
+### 49. How does `<input type="range">` handle accessibility, and what's required for proper implementation?
+
+**Answer:** Range inputs lack visible value indicators and have poor default accessibility—screen readers announce position but not context. For proper implementation, always include: a `<label>`, `min`/`max`/`step` attributes, `aria-valuetext` to announce user-friendly values (e.g., "$50" not "50"), a connected `<output>` element displaying current value, and consider `list` attribute with `<datalist>` for tick marks. For critical applications, consider custom accessible sliders with proper ARIA labels and keyboard support.
+
+### 50. What is the purpose and risk of `<meta http-equiv="Content-Security-Policy">`?
+
+**Answer:** This meta tag allows implementing CSP without server configuration, useful for static sites or when you can't control headers. However, it's less secure than HTTP headers—it can't protect against certain attacks that occur during HTML parsing before the meta tag is reached, can't use frame-ancestors directive, and can be injected or modified via XSS if not in a secured template. Always prefer HTTP headers for CSP; use meta tags only as a fallback or for additional layered security on pages where header control is impossible.
 
 
 **🎉 Good luck with your interview preparation! These projects will make you stand out!**
