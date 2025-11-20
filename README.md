@@ -6080,6 +6080,210 @@ After completing all three projects, you will have:
 **Answer:** This meta tag allows implementing CSP without server configuration, useful for static sites or when you can't control headers. However, it's less secure than HTTP headers—it can't protect against certain attacks that occur during HTML parsing before the meta tag is reached, can't use frame-ancestors directive, and can be injected or modified via XSS if not in a secured template. Always prefer HTTP headers for CSP; use meta tags only as a fallback or for additional layered security on pages where header control is impossible.
 
 
+
+## Advanced CSS Interview Questions
+
+### 1. Your layout shifts on page load due to images loading — what's the CSS solution to prevent cumulative layout shift (CLS)?
+
+**Answer:** Use the `aspect-ratio` property on image containers or directly on `<img>` tags to reserve space before the image loads: `img { aspect-ratio: 16/9; width: 100%; height: auto; }`. Alternatively, set explicit `width` and `height` attributes in HTML which modern browsers use to calculate aspect ratio automatically. For background images, use `padding-bottom` percentage trick on the container. These techniques ensure the browser reserves correct space during initial render, preventing layout shifts.
+
+### 2. Two elements with z-index values of 100 and 10 overlap, but the element with z-index: 10 appears on top. Why, and how do you diagnose this?
+
+**Answer:** This occurs due to stacking context issues. The element with `z-index: 10` likely belongs to a different (higher) stacking context than the one with `z-index: 100`. Stacking contexts are created by positioned elements with z-index, `opacity < 1`, `transform`, `filter`, `will-change`, or other properties. To diagnose, inspect parent elements for stacking context triggers, and use browser DevTools' 3D view (Firefox) or Layers panel (Chrome). Fix by ensuring both elements are in the same stacking context or adjusting parent stacking contexts.
+
+### 3. Explain the difference between `width: 100%`, `width: 100vw`, and `width: 100dvw` in terms of behavior and when to use each.
+
+**Answer:** `width: 100%` is relative to the parent element's content box (excluding padding unless `box-sizing: border-box` on parent). `width: 100vw` is 100% of the viewport width, potentially causing horizontal scrollbars if scrollbars consume space (Windows) or when padding exists on body. `width: 100dvw` (dynamic viewport width) accounts for dynamic toolbars on mobile browsers that hide/show during scroll. Use `100%` for contained layouts, `100vw` for full-width overlays (with care), and `100dvw` for mobile-first full-viewport sections that should respond to toolbar changes.
+
+### 4. A flexbox container has three items with `flex: 1`, but one item is visibly wider than the others despite identical flex values. What causes this and how do you fix it?
+
+**Answer:** This occurs because `flex: 1` is shorthand for `flex: 1 1 0%`, but the items' min-content size (longest word, image, or intrinsic content) acts as a minimum width. If one item contains wider content (long unbreakable text, image), it won't shrink below its min-content size. Fix by setting `min-width: 0` on flex items to allow shrinking below content size, or use `overflow: hidden` which also establishes a new BFC and resets min-width behavior.
+
+### 5. Your CSS animation causes battery drain on mobile devices. What properties should you animate, and which should you avoid?
+
+**Answer:** Only animate `transform` and `opacity` as these trigger compositing and run on the GPU without triggering layout or paint. Avoid animating `width`, `height`, `top`, `left`, `margin`, `padding`, or any property that triggers reflow/repaint. These force the browser to recalculate layout and repaint on every frame, causing CPU spikes and battery drain. Use `will-change: transform` sparingly before animations to promote elements to their own compositing layer, but remove it after animation completes to free memory.
+
+### 6. Scrolling on your mobile site is janky. What CSS properties could be causing this, and how do you identify them?
+
+**Answer:** Jank is typically caused by properties triggering layout/paint during scroll: fixed positioning with complex children, `background-attachment: fixed`, excessive shadows/filters, animations on scroll, or lack of hardware acceleration. Use Chrome DevTools Performance panel to record scroll and check for long frames, excessive paint operations, or layout thrashing. Fix by using `transform: translateZ(0)` or `will-change` to create compositing layers, simplifying visual effects, using `content-visibility: auto` for long lists, and replacing fixed backgrounds with transforms.
+
+### 7. Explain the difference between `contain: layout`, `contain: paint`, and `contain: strict`, including practical use cases for each.
+
+**Answer:** `contain: layout` isolates the element's internal layout from external layout (prevents internal changes affecting ancestors), useful for widgets or components. `contain: paint` ensures descendants can't paint outside boundaries (like `overflow: hidden` but creates stacking context), useful for cards or panels. `contain: strict` combines layout, paint, and size containment, telling the browser the element's size won't depend on descendants—useful for virtualized lists or off-screen content. Each optimization helps browser skip recalculation work for better performance.
+
+### 8. You have a CSS Grid with `grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))`. Items overflow instead of wrapping when viewport is very narrow. Why and how do you fix it?
+
+**Answer:** The `minmax(250px, 1fr)` function sets a hard minimum of 250px, so when the viewport is narrower than 250px, items can't shrink further and overflow. The `auto-fit` creates zero-width columns when items don't fit. Fix by using `minmax(min(250px, 100%), 1fr)` which makes the minimum responsive—below 250px, items shrink to 100% of container width. Alternatively, use `grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))` with proper container constraints.
+
+### 9. What is a Block Formatting Context (BFC), how is it created, and what are three practical problems it solves?
+
+**Answer:** A BFC is an isolated layout region where floats, margins, and positioning are contained. Created by: `overflow: hidden/auto/scroll`, `display: flow-root`, `float: left/right`, `position: absolute/fixed`, flexbox/grid items, or `contain: layout/paint`. It solves: (1) containing floats without clearfix hacks, (2) preventing margin collapse between parent and children, (3) preventing content wrapping around external floats. `display: flow-root` is the modern semantic way to create a BFC purely for layout containment.
+
+### 10. Your `position: sticky` element isn't sticking. What are five possible causes and how do you debug each?
+
+**Answer:** (1) Parent has `overflow: hidden/auto/scroll`—sticky requires overflow visible on ancestors. (2) No threshold set—need `top`, `bottom`, `left`, or `right` value. (3) Sticky container isn't tall enough—element needs room to scroll within container. (4) Parent has `height: 100%` chain broken—sticky positioning requires a defined scroll container. (5) Stacking context issues—z-index may position it behind other content. Debug using computed styles panel, checking parent overflow values, ensuring container height exceeds viewport, and validating position thresholds.
+
+### 11. Explain the cascade layers feature (`@layer`) and when you would use it over traditional specificity management.
+
+**Answer:** `@layer` allows explicit ordering of CSS rule precedence independent of specificity or source order. Layers declared first have lowest priority: `@layer base, components, utilities;`. Rules in utilities layer always override components, even with lower specificity. This solves the specificity wars problem in large codebases, making framework integration cleaner (put frameworks in lower layers), and allows easy overrides without !important. Use it for design systems, CSS architecture, or when integrating third-party styles where you need predictable override patterns without specificity hacks.
+
+### 12. You need a responsive font size between 16px and 24px based on viewport width. Compare `clamp()`, `calc() + vw`, and `min()/max()` approaches.
+
+**Answer:** `clamp(16px, 4vw, 24px)` is cleanest—sets minimum 16px, scales at 4vw, caps at 24px in one declaration. `font-size: calc(16px + (24 - 16) * ((100vw - 320px) / (1200 - 320)))` offers precise control over breakpoint range but is verbose and less readable. `min(max(16px, 4vw), 24px)` is equivalent to clamp but nested. Use `clamp()` for readability and browser optimization; use `calc()` when you need exact breakpoint mapping; avoid nested `min/max` as it's harder to maintain than clamp.
+
+### 13. Your CSS custom properties aren't inheriting as expected in a component. Explain the scoping rules and how Shadow DOM affects them.
+
+**Answer:** CSS custom properties follow normal inheritance rules—defined on an element, available to descendants. In Shadow DOM, custom properties penetrate the shadow boundary (inherit through) but regular CSS rules don't. This is by design for theming. If properties aren't inheriting: (1) check if they're defined on `:root` or appropriate ancestor, (2) verify no local redefinition shadows them, (3) confirm you're not trying to inherit non-inherited properties. For Shadow DOM components, define theme variables on `:host` or document root, and reference them inside shadow styles.
+
+### 14. An element has `opacity: 0.99` applied for a fade effect, and suddenly child z-index stacking breaks. What happened and how do you fix it?
+
+**Answer:** `opacity` values less than 1 create a new stacking context, isolating all children's z-index values within it. Children can no longer stack relative to external elements—only relative to siblings within the stacking context. This breaks previous z-index arrangements that relied on document-level stacking. Fix by: (1) restructuring DOM so elements needing different stacking aren't in the opacity element, (2) applying opacity to pseudo-elements instead of parent, (3) using `visibility` or `display` transitions if appropriate, or (4) accepting the stacking context and adjusting child z-indexes accordingly.
+
+### 15. Explain the difference between `flex-basis: 0`, `flex-basis: auto`, and `flex-basis: content`, including impact on flex shrinking and growing.
+
+**Answer:** `flex-basis: auto` uses the item's width/height or content size as the starting point before growing/shrinking. `flex-basis: 0` ignores content size, distributes space purely based on flex-grow ratios (e.g., `flex: 1` creates equal widths regardless of content). `flex-basis: content` (newer) uses the max-content size, sizing based on content without wrapping. For equal-width columns despite varying content, use `flex: 1 1 0%`. For proportional sizing respecting content, use `flex: 1 1 auto`. The basis determines how available space is distributed.
+
+### 16. You're implementing dark mode with CSS custom properties. How do you handle the flash of unstyled content (FOUC) when theme loads?
+
+**Answer:** Prevent FOUC by: (1) inlining critical theme CSS or properties in `<head>` before body renders, (2) setting theme class on `<html>` tag via blocking script in `<head>` that reads localStorage/system preference before render, (3) using `color-scheme` meta tag for instant browser UI adaptation, (4) applying `transition: none !important` temporarily via class during initial load to prevent visible theme transitions. Never rely on JavaScript after page load—theme must be set synchronously during HTML parsing to avoid visible flash.
+
+### 17. Your absolutely positioned element is positioning relative to an unexpected ancestor. Explain the containing block rules for positioned elements.
+
+**Answer:** Absolutely positioned elements use the nearest positioned ancestor (position: relative/absolute/fixed/sticky) as their containing block, not their DOM parent. If none exists, they position relative to the initial containing block (viewport/html). For `position: fixed`, containing block is always viewport unless an ancestor has `transform`, `perspective`, `filter`, or `will-change` on these properties—then that ancestor becomes the containing block. Debug by inspecting computed position values and checking ancestors for positioning or transform properties that create new containing blocks.
+
+### 18. Compare `object-fit: cover`, `object-fit: contain`, and `object-fit: fill` for images. When does each cause layout issues?
+
+**Answer:** `cover` scales image to fill container while maintaining aspect ratio, cropping excess—useful for thumbnails but may cut important content. `contain` fits entire image within container maintaining aspect ratio, potentially leaving gaps—safe but may waste space. `fill` stretches image to fill container, distorting aspect ratio—rarely desirable. Layout issues: all require explicit container dimensions (width/height). Without dimensions, containers collapse or behave unexpectedly. Always set container size and use `object-position` to control crop/alignment. For responsive images, combine with aspect-ratio on container.
+
+### 19. You have a grid with `grid-template-columns: 1fr 2fr 1fr`, but columns don't follow the 1:2:1 ratio. What factors affect fr unit distribution?
+
+**Answer:** `fr` units distribute available space after fixed sizes, but respect content min-content size by default. If the 2fr column contains wide content (long word, image), it won't shrink below min-content, breaking the ratio. Also, `grid-auto-flow: dense` can affect perceived sizing. Fix by: (1) setting `min-width: 0` on grid items to allow shrinking below content, (2) using `minmax(0, 2fr)` instead of just `2fr` to explicitly allow zero minimum, (3) applying `overflow: hidden` to items, or (4) using fixed sizes for predictable columns: `grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr)`.
+
+### 20. Explain when and why you would use `will-change`, and what the performance risks are if misused.
+
+**Answer:** `will-change` hints to browsers which properties will animate, allowing preemptive optimization (creating compositing layers, allocating GPU memory). Use it: (1) just before expensive animations/transitions on `transform`/`opacity`, (2) on scroll containers with many children, (3) for elements that frequently change. Risks: creates layers consuming GPU memory, can cause more harm if applied to many elements simultaneously, wastes resources if element never changes. Always remove it after animation completes (`transitionend` event), never set it globally or on too many elements, and only use for properties that benefit from layerization.
+
+### 21. A text element has `white-space: nowrap`, but text still wraps. What CSS properties on the element or parents could cause this?
+
+**Answer:** Despite `nowrap`, text wraps if: (1) parent has explicit `width` smaller than text, forcing overflow behavior—need `overflow: hidden/scroll/auto` to see effect, (2) `word-break: break-all` or `overflow-wrap: anywhere` override the nowrap intent, (3) element is a flex or grid item with default `min-width: auto` which doesn't respect nowrap—add `min-width: 0`, (4) `width: 100%` on element conflicts with nowrap. Debug by checking computed width values, overflow settings, and flex/grid item behaviors. Ensure container width accommodates text or handle overflow explicitly.
+
+### 22. What's the difference between `visibility: hidden`, `opacity: 0`, and `display: none` regarding layout, accessibility, and events?
+
+**Answer:** `display: none` removes element from layout (no space occupied), accessibility tree (screen readers ignore), and event handling (no clicks). `visibility: hidden` maintains layout space, removes from accessibility tree, and disables events but children can override with `visibility: visible`. `opacity: 0` maintains layout and events (clickable), and remains in accessibility tree (announced by screen readers). Use `display: none` for truly hidden content, `visibility: hidden` for space-preserving hiding, and `opacity: 0` for fade animations where interactive states need to remain. For a11y hiding, use `aria-hidden="true"` with `display: none`.
+
+### 23. Your font loads late, causing a flash of invisible or unstyled text. Explain `font-display` values and when to use each.
+
+**Answer:** `font-display: swap` shows fallback immediately then swaps when custom font loads (FOUT—Flash of Unstyled Text)—best for body text prioritizing readability. `auto` lets browser decide (usually similar to block). `block` hides text up to 3s then swaps (FOIT—Flash of Invisible Text)—risky for performance. `fallback` has short block period (~100ms) then shows fallback, swapping only if font loads quickly (~3s)—balanced approach. `optional` shows fallback immediately and only uses custom font if cached—prioritizes performance, good for slow connections. For critical text, use `swap`; for optional decorative fonts, use `optional`.
+
+### 24. Explain the stacking order rules within a stacking context, considering positioned elements, floats, and z-index.
+
+**Answer:** Within a stacking context (bottom to top): (1) background/borders of context root, (2) positioned elements with negative z-index, (3) non-positioned block-level descendants in source order, (4) non-positioned floats, (5) non-positioned inline descendants, (6) positioned elements with `z-index: auto` or `z-index: 0`, (7) positioned elements with positive z-index (higher values on top). Only positioned elements participate in z-index stacking; floats and normal flow elements always render below positioned elements regardless of z-index. Understanding this resolves 90% of stacking issues.
+
+### 25. You have a sidebar with `position: sticky` and a main content area. The sidebar doesn't span the full viewport height. How do you fix this with CSS Grid or Flexbox?
+
+**Answer:** With Grid: `display: grid; grid-template-columns: 250px 1fr; grid-template-rows: 100vh;` on container forces full height. Sidebar gets `position: sticky; top: 0; align-self: start;` to stick within its grid cell. With Flexbox: container gets `display: flex; min-height: 100vh;`, sidebar gets `position: sticky; top: 0; align-self: flex-start;`. Key insight: sticky elements need a tall scroll container—without explicit height, the container is only as tall as content. Alternative: use `height: 100vh; overflow-y: auto;` on a parent wrapper to create scrolling context.
+
+### 26. Compare margin collapse in normal flow versus flexbox versus grid. When does margin collapse not occur?
+
+**Answer:** Normal flow: vertical margins collapse between adjacent siblings and between parent and first/last child if no border/padding separates them. Flexbox/Grid: margins never collapse—flex and grid items are in different formatting contexts. Margins also don't collapse: (1) inside BFC elements, (2) with floated elements, (3) with absolutely positioned elements, (4) with inline-block elements, (5) when parent has border, padding, or creates BFC. To prevent margin collapse without layout changes, use padding instead, add transparent borders, or use `display: flow-root` on parent.
+
+### 27. You're animating height from 0 to auto but the animation doesn't work. What are three CSS-based solutions?
+
+**Answer:** (1) Animate `max-height` to a value larger than expected content height: `transition: max-height 0.3s; max-height: 0; &.open { max-height: 500px; }`—simple but causes timing issues if max-height is much larger than actual. (2) Use grid with `grid-template-rows: 0fr` to `1fr`—modern, smooth, but requires wrapper. (3) Use scale transforms: `transform: scaleY(0); transform-origin: top;` to `scaleY(1)`—smooth but distorts content during animation. Best modern approach: Grid track animation with `calc-size(auto)` in cutting-edge browsers, or JavaScript to measure and set explicit heights.
+
+### 28. Explain the difference between logical properties (`margin-inline-start`) and physical properties (`margin-left`), including RTL implications.
+
+**Answer:** Physical properties are direction-agnostic: `margin-left` always means left regardless of reading direction. Logical properties adapt to writing mode: `margin-inline-start` means left in LTR languages, right in RTL languages (Arabic, Hebrew). Similarly, `padding-block-start` is top in horizontal writing, left in vertical. Using logical properties makes layouts automatically adapt to `dir="rtl"` or different writing modes without additional CSS. For internationalized sites, prefer logical properties: `inline` (horizontal axis), `block` (vertical axis), `start`/`end` instead of `left`/`right`/`top`/`bottom`.
+
+### 29. Your pseudo-element (`::before` or `::after`) isn't appearing. What are the five essential requirements?
+
+**Answer:** (1) Must have `content` property, even if empty (`content: ""`). (2) Parent must not be a replaced element (img, input, video can't have pseudo-elements). (3) Must have `display` other than `none` (default is inline). (4) Check z-index/stacking context—may be behind parent. (5) Verify parent has dimensions—if parent is 0x0, pseudo-element may be invisible even if it exists. Debug using DevTools elements inspector which shows pseudo-elements, check computed styles for content property, verify display value, and ensure parent layout accommodates the pseudo-element.
+
+### 30. Describe three different techniques for creating equal-height columns in a layout, comparing their use cases.
+
+**Answer:** (1) Flexbox: `display: flex` on container, children auto-stretch to equal height—simplest, works for most cases, handles unknown content. (2) CSS Grid: `display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;`—best for explicit column structures, handles complex layouts. (3) Table display: `display: table` on container, `display: table-cell` on columns—legacy approach, works everywhere but less semantic. For modern layouts, use Flexbox for flexible content-driven columns or Grid for structured layouts. Only use table display for extremely old browser support.
+
+### 31. You have overlapping elements with `mix-blend-mode: multiply`. One element has `opacity: 0.5`. Why does the blend mode stop working?
+
+**Answer:** `opacity < 1` creates a new stacking context, which isolates blend modes. Blend modes only work within their stacking context and cannot blend across stacking context boundaries. When opacity creates a stacking context, the element's blending is composited first within its context, then the entire context is composited with opacity. Fix by: (1) removing opacity and using `rgba()` colors instead for transparency, (2) restructuring DOM so blend mode elements are siblings without opacity parents, (3) applying opacity to the final composited result if possible, or (4) accepting the limitation and adjusting the design.
+
+### 32. Explain how `transform-style: preserve-3d` works and a practical scenario where it's essential.
+
+**Answer:** By default, transformed elements flatten children into the element's plane (`transform-style: flat`). `preserve-3d` maintains 3D positioning of children, allowing them to exist at different z-depths. Essential for: (1) 3D card flips where front and back have different z-positions, (2) 3D carousels with items rotated around a central axis, (3) nested 3D transformations like folding animations. Without `preserve-3d` on parents, children would render flat regardless of their `translateZ()` or `rotateX/Y()` values. Note: it creates stacking context and can cause issues with overflow, filters, or blend modes on the same element.
+
+### 33. Your `:focus-visible` styles aren't applying when clicking buttons with a mouse, but work with keyboard. Explain this behavior and accessibility implications.
+
+**Answer:** `:focus-visible` is specifically designed to show focus indicators only for keyboard navigation (or when browser heuristics determine the user needs visible focus), hiding them for mouse/touch interactions. This is intentional UX behavior—mouse users can see where they clicked, but keyboard users need visible focus indication to know their position. Always style `:focus-visible` for accessibility compliance (WCAG 2.4.7), and don't override it with `:focus { outline: none }` without providing alternative visible focus indicators. Use `:focus-within` for parent containers needing focus awareness.
+
+### 34. You're using `backdrop-filter: blur(10px)` for glassmorphism, but performance is poor. What's the cause and how do you optimize?
+
+**Answer:** `backdrop-filter` forces the browser to re-render all content behind the element on every frame, which is expensive. Causes: (1) large blur radius (higher = more expensive), (2) many overlapping backdrop-filter elements, (3) animated backdrop-filter values, (4) complex content behind filter. Optimize by: (1) reducing blur radius to 5-8px, (2) limiting number of glassmorphic elements, (3) avoiding animation of backdrop-filter itself, (4) using `will-change: backdrop-filter` on scroll containers, (5) considering simpler alternatives like solid colors with opacity, or (6) using static blurred background images instead of live backdrop-filter.
+
+### 35. Explain the difference between `auto`, `min-content`, `max-content`, and `fit-content` for width values, with practical examples.
+
+**Answer:** `auto` uses available space respecting margins (default block behavior). `min-content` shrinks to the smallest possible width without overflow (longest word/element width). `max-content` expands to content width without wrapping. `fit-content` is essentially `min(max-content, available-space)`—expands up to content but respects container. Use cases: `min-content` for sizing to longest word in buttons, `max-content` for dropdown menus that shouldn't wrap, `fit-content` for centered elements that grow with content but don't exceed container, `auto` for normal layout flow. Critical for intrinsic sizing in Grid and Flex contexts.
+
+### 36. Your CSS Grid layout has unexpected gaps. You haven't set `gap` property. What could be causing spacing between items?
+
+**Answer:** Whitespace (newlines/spaces) in HTML source creates text nodes, but Grid ignores these—not the cause. Likely causes: (1) margins on grid items (margins don't collapse in Grid), (2) default browser styles on specific elements (ul/li have default margins), (3) inherited padding/margin from global styles, (4) `justify-content` or `align-content` distributing extra space, (5) explicit track sizes with leftover space being distributed. Debug using DevTools grid overlay, check computed margins on items, inspect grid container's justify/align properties, and verify track sizing doesn't create extra space.
+
+### 37. Compare `overflow: auto`, `overflow: scroll`, and `overflow: overlay` in terms of scrollbar behavior and layout impact.
+
+**Answer:** `overflow: auto` shows scrollbars only when content overflows, adding them dynamically (can cause layout shift as scrollbars take space). `overflow: scroll` always shows scrollbars even if content fits, reserving space (prevents layout shift but wastes space). `overflow: overlay` (deprecated/removed) showed scrollbars overlaying content without taking layout space—best of both worlds but non-standard. Modern approach: use `scrollbar-gutter: stable` with `overflow: auto` to always reserve space for scrollbars without showing them until needed, preventing layout shifts while not wasting space.
+
+### 38. You have a rotated element (`transform: rotate(45deg)`) that's being clipped by its parent's `overflow: hidden`. How do you prevent this?
+
+**Answer:** Transforms happen after layout, so rotated content can extend beyond the element's layout box even though visually it appears larger. Parent's `overflow: hidden` clips based on original layout box. Solutions: (1) add padding to parent equal to expected overflow distance, (2) set `overflow: visible` on parent (or use `overflow-x: visible` if only horizontal overflow is an issue), (3) use `transform-origin` to rotate around a different point keeping content within bounds, (4) increase child's explicit width/height to accommodate rotation, or (5) restructure DOM so rotated element isn't child of overflow container.
+
+### 39. Explain CSS containment (`contain`) and when each value (`size`, `layout`, `paint`, `style`) provides performance benefits.
+
+**Answer:** Containment tells browsers which properties are isolated, enabling optimization. `contain: size` means element's size doesn't depend on children (browser can skip measuring children during layout). `contain: layout` isolates internal layout from external (changes inside don't trigger parent relayout). `contain: paint` ensures descendants don't render outside bounds and creates stacking context. `contain: style` isolates CSS counter and quote effects. Use `content` (layout + paint + style) for independent widgets, `strict` (all four) for off-screen virtualized content, and `inline-size` for width-only containment preserving height dynamics.
+
+### 40. Your SVG icon in CSS (`background-image: url("data:image/svg+xml...`)`) doesn't change color with `color` property. How do you create theme-aware SVG icons in CSS?
+
+**Answer:** Inline SVG respects `fill: currentColor` but background SVG doesn't have access to CSS properties. Solutions: (1) Use inline SVG in HTML with `fill="currentColor"` in SVG elements—inherits text color. (2) Use CSS mask: `mask-image: url(icon.svg); background-color: currentColor;` creates monochrome icon that respects color property. (3) Use multiple background images with different colored versions, switching via media queries. (4) Use CSS custom properties with embedded SVG: `url("data:image/svg+xml,<svg fill='var(--icon-color)'>")` but has encoding limitations. Mask approach is most flexible.
+
+### 41. You're using `position: fixed` for a modal overlay, but on iOS Safari, the layout breaks when the address bar hides. Why and how do you fix it?
+
+**Answer:** iOS Safari's viewport changes as the address bar shows/hides, making `100vh` unreliable—it doesn't account for dynamic UI. Fixed elements using `height: 100vh` resize, causing jank. Fix using: (1) new viewport units: `height: 100dvh` (dynamic vh) or `100svh` (small viewport—address bar shown), (2) JavaScript to set CSS custom property: `document.documentElement.style.setProperty('--vh', window.innerHeight/100)` then `height: calc(var(--vh) * 100)`, (3) `position: fixed; inset: 0;` which often behaves better than explicit height, or (4) for overlays, use `min-height: 100vh` with `height: 100%` allowing growth.
+
+### 42. Explain the performance difference between `transform: translate()` and changing `top/left` properties, including what happens at the rendering layer.
+
+**Answer:** Changing `top/left` triggers layout recalculation (reflow) because it affects document flow, then repaint, then composite—expensive. `transform: translate()` only triggers composite because transforms happen after layout/paint on the GPU as a separate layer. The browser doesn't recalculate positions of other elements. For animations: always use transforms. Performance pipeline: Layout → Paint → Composite. Layout (most expensive) recalculates geometry of all affected elements. Paint rasterizes pixels. Composite (cheapest) combines layers on GPU. Only transform and opacity skip layout/paint stages.
+
+### 43. You have a CSS counter for numbered headings, but it resets unexpectedly. Explain counter scoping and how to fix hierarchical counters.
+
+**Answer:** Counters are scoped to their containing element—each `counter-reset` creates a new counter scope. For nested lists or hierarchical headings, if you reset at each level, child counters are independent. For hierarchical numbering (1, 1.1, 1.2, 2, 2.1), use multiple counters: `counter-reset: section subsection; counter-increment: section;` on h2, then reference both: `content: counter(section) "." counter(subsection);`. Ensure reset happens at appropriate ancestor level. For lists, use `counter-reset: list-item` on ol, and increment on li to maintain proper nesting across multiple levels.
+
+### 44. Your `aspect-ratio: 16/9` container has an image inside, but the image distorts or doesn't respect the ratio. What's the issue?
+
+**Answer:** `aspect-ratio` sets the container's ratio but doesn't control children's sizing. If the image has explicit width/height, its own dimensions, or default sizing, it won't respect parent's aspect ratio. Fix by: (1) making image responsive: `img { width: 100%; height: 100%; object-fit: cover; }` to fill container while maintaining its own ratio, (2) using `object-fit: contain` to fit entirely within container, or (3) using image as background: `background: url(img.jpg); background-size: cover;`. The aspect-ratio creates the container shape; object-fit controls how content fills it.
+
+### 45. Explain how `isolation: isolate` works and when it's useful for controlling blend modes and stacking contexts.
+
+**Answer:** `isolation: isolate` creates a new stacking context without requiring positioning, z-index, or opacity changes. It isolates the element's content so blend modes and effects don't interact with content outside the stacking context. Use cases: (1) limiting `mix-blend-mode` effects to specific areas without affecting entire page, (2) creating clean stacking boundaries in components without using opacity tricks, (3) preventing z-index conflicts from propagating to parent contexts. Unlike other stacking context triggers, `isolation` has no side effects—no opacity changes, no transform behavior, just clean isolation.
+
+### 46. Your `text-overflow: ellipsis` isn't working. What three CSS properties are required for ellipsis to appear?
+
+**Answer:** Ellipsis requires: (1) `overflow: hidden` to clip overflowing text, (2) `white-space: nowrap` to prevent wrapping, (3) a constrained width—element must have a width that's smaller than content (explicit `width`, `max-width`, or flex/grid constraints). Without all three, ellipsis won't display. For multi-line ellipsis, use `-webkit-line-clamp` with `display: -webkit-box` and `-webkit-box-orient: vertical`. In flex/grid items, add `min-width: 0` to allow shrinking below content size, as default `min-width: auto` prevents ellipsis from triggering.
+
+### 47. Explain the difference between `revert`, `revert-layer`, `initial`, `inherit`, and `unset` CSS keywords.
+
+**Answer:** `initial` sets property to its CSS-defined default (not user-agent styles). `inherit` forces inheritance from parent even for non-inherited properties. `unset` acts as `inherit` for inherited properties, `initial` for others—undoes author styles. `revert` rolls back to user-agent stylesheet (browser defaults), skipping author styles—useful for resetting to native browser behavior. `revert-layer` (newest) rolls back to previous cascade layer, ignoring current layer's rules. Use `revert` to restore native button/form styles, `unset` for component resets, and `revert-layer` when working with `@layer` architecture.
+
+### 48. Your modal dialog has `backdrop-filter`, but clicking the backdrop doesn't close the modal, and focus escapes. How do you implement proper modal accessibility?
+
+**Answer:** Proper modal requires: (1) focus trap using JavaScript to cycle Tab within modal, (2) backdrop click handler checking `event.target === backdropElement` to close, (3) `aria-modal="true"` and `role="dialog"` on modal, (4) `aria-labelledby` pointing to title, (5) Esc key handler to close, (6) focus management—save last focused element, move focus to modal on open, restore on close, (7) prevent body scroll with `overflow: hidden` on body, (8) use `<dialog>` element with `showModal()` method for native behavior. Never rely only on backdrop-filter for backdrop—use separate overlay element.
+
+### 49. You have a CSS Grid with `grid-auto-rows: minmax(100px, auto)`. Some rows are shorter than 100px. Why doesn't the minimum apply?
+
+**Answer:** `grid-auto-rows` only affects implicitly created rows (rows beyond those defined in `grid-template-rows`). If you've defined explicit rows with `grid-template-rows: repeat(3, 1fr)` or similar, those take precedence and `grid-auto-rows` doesn't apply to them. To apply minmax to all rows: (1) use `grid-template-rows: repeat(auto-fill, minmax(100px, auto))`, (2) remove explicit `grid-template-rows` letting all rows be auto-generated, or (3) define explicit rows with the minmax: `grid-template-rows: repeat(3, minmax(100px, auto))`. Also check if items have `grid-row` spanning that affects row sizing.
+
+### 50. Your animation has `animation-fill-mode: forwards`, but styles revert when another animation starts. Explain the cascade behavior and how to maintain styles.
+
+**Answer:** When a new animation starts on the same element, it overrides the previous animation's fill-mode styles because animations have higher cascade priority than base styles, and later animations override earlier ones. If the new animation doesn't specify the same properties, those properties revert to non-animated states. Fix by: (1) combining animations using `animation: anim1, anim2` to run both, (2) setting final state in base CSS styles (not relying on fill-mode), (3) using CSS classes to apply final state alongside animation, (4) chaining animations with `animationend` event listener to apply styles via class, or (5) using Web Animations API with explicit persistence options for better control.
+
+
 **🎉 Good luck with your interview preparation! These projects will make you stand out!**
 
 
