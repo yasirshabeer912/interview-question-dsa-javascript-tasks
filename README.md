@@ -146,6 +146,30 @@
     - Makes `this` undefined in functions (not global object)
     - Cannot delete variables
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a time a type-related bug caused an issue in your project. How did you find and fix it?"**
+   - *STAR hint*: Think about API returning `"true"` (string) instead of `true` (boolean), or `null` breaking `.length`. Describe the user impact, how you debugged it (console, breakpoints), what you changed (type guard / explicit conversion), and what you added to prevent it (validation layer, unit test).
+
+2. **"Describe a situation where you had to refactor code because of poor variable scoping. What was the impact?"**
+   - *STAR hint*: Classic `var` in a loop causing closure/stale-value bugs, or a `let` declared in wrong scope. Mention the specific symptom, how you traced it to a scope issue, and how the refactor improved predictability.
+
+3. **"Have you ever had a production crash caused by `null` or `undefined`? Walk me through what happened."**
+   - *STAR hint*: Optional chaining (`?.`) came up, or a missing API field. Describe the symptom (crash/error), how you found the root cause, the fix (null check / default value), and process improvement (add input validation at API boundary).
+
+**Experience-Based Conceptual:**
+4. **"In your React projects, how do you ensure API response data has the right type before rendering a component?"**
+   - *Answer framework*: Runtime validation function at fetch layer, optional chaining for safe access, default props / default values, TypeScript if used. Mention a specific case from Shopify or Airtable work.
+
+5. **"Shopify webhook sends `total_price` as a string like `"29.99"`. How do you handle this safely across your codebase without scattered `parseFloat()` calls everywhere?"**
+   - *Answer framework*: Centralized API response transformer/normalizer function called once at the boundary (e.g., `normalizeOrder(rawWebhookPayload)`), converts types before data enters state/components.
+
+6. **"You're integrating Airtable API and a field expected to be a number comes back as `null` for some records. How do you handle this at scale?"**
+   - *Answer framework*: Nullish coalescing (`?? 0`), a field-level validator that runs on all records, logs a warning for unexpected nulls, never lets `null` propagate into arithmetic or `.toString()` calls.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Create a user info prompt
 * ✅ Task 2: Swap two numbers (with and without temp variable)
@@ -215,6 +239,30 @@
 * ✅ Task 48: Show memory difference between primitives and references
 * ✅ Task 49: Implement Object.is() polyfill (handles NaN and -0)
 * ✅ Task 50: Create a comprehensive type-checking utility function
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Build a contact form that collects name, email, phone — validate each field's data type before submission (no empty strings, phone must be numeric)
+* ⬜ RW-2: Read a Shopify product JSON response and `console.log` the JS type of each field (`price` as string, `available` as boolean, `images` as array)
+
+**React / Next.js:**
+* ⬜ RW-3: Create a React component that accepts a `product` prop — use type guards (`typeof`, nullish check) to avoid rendering errors when `product` is `null`/`undefined`
+* ⬜ RW-4: In a Next.js API route, validate incoming query params — ensure `page` coerces to a number, `q` defaults to empty string if missing
+
+**Airtable API:**
+* ⬜ RW-5: Fetch Airtable records and log the JS type of each field (linked record = array, date = string, checkbox = boolean) — build a field-type report object
+* ⬜ RW-6: Write a type normalizer — convert Airtable field values to correct JS types before storing in state (`"true"` → `true`, `"42"` → `42`)
+
+**Shopify:**
+* ⬜ RW-7: Parse a Shopify webhook payload — verify types of `total_price` (comes as string!), `line_items` (array), `customer` (object or null), handle each safely
+* ⬜ RW-8: Build a price formatter: input may be string `"29.99"` or number `29.99` — output a consistent `"$29.99"` currency string using explicit type conversion
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Simulate a Laravel JSON API response in pure JS — parse it and validate all expected fields exist and have correct types before using them
+* ⬜ RW-10: Build a Flask-style input validator in pure JS: check request body fields have correct types, return `{field, error}` array for any that fail
 
 ### **Day 2: Loops and Conditionals**
 
@@ -358,6 +406,30 @@
     - **Performance**: Imperative sometimes faster (no function calls)
     - **Use case**: Imperative for performance-critical, declarative for clarity
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a time you optimized a slow loop that was degrading performance in a real app."**
+   - *STAR hint*: A nested loop O(n²) scanning a product list or cart on every render/input. Describe the visible symptom (lag, freeze), profiling step (DevTools Performance tab), the fix (convert inner loop to a Map/Set lookup), measured improvement.
+
+2. **"Describe a complex conditional logic you wrote for a real business requirement. How did you keep it maintainable?"**
+   - *STAR hint*: Shopify discount rules, Airtable record status routing, pricing tiers. Mention how you started with nested if/else, the readability problem, and how you refactored to an object lookup / strategy pattern or early returns.
+
+3. **"Has a loop ever caused your browser to freeze or an infinite loop to appear in production? What happened?"**
+   - *STAR hint*: A `while` loop with a wrong exit condition. Describe the user impact, how you identified it (browser tab unresponsive, Error Boundary, DevTools), the fix (correct exit condition, max iteration guard), and what you learned.
+
+**Experience-Based Conceptual:**
+4. **"When fetching all Airtable records (which can be hundreds), how do you efficiently loop through paginated responses without blocking the UI?"**
+   - *Answer framework*: Async loop with `do...while` or `for` using `await`, accumulate into array, show loading state, avoid `Promise.all` with too many concurrent calls due to rate limits.
+
+5. **"In React, when would you choose a `for` loop inside a function vs `.map()` in JSX? Is there a performance difference?"**
+   - *Answer framework*: `.map()` for rendering (JSX expects an array), `for`/`for...of` for imperative logic (building a value, early exit with `break`). `.map()` slightly more overhead due to array creation but negligible at normal scales.
+
+6. **"How do you handle early exit when searching through a Shopify product array — for example, 'find the first product under $20'?"**
+   - *Answer framework*: Use `.find()` which short-circuits on first match (O(n) worst but exits early), avoid `.filter()[0]` which scans the whole array. For sorted data, binary search. Demonstrate awareness of short-circuit efficiency.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Print numbers from 1 to 100
 * ✅ Task 2: FizzBuzz problem
@@ -472,6 +544,30 @@
 * ✅ Task 83: Find second largest number in array using loops
 * ✅ Task 84: Count positive, negative, and zero in array
 * ✅ Task 85: Find all pairs with given sum using nested loops
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Loop through a Shopify product list array and build `<li>` HTML strings — break after first 5 featured products using `break`
+* ⬜ RW-2: Display a pricing table: use a `for` loop over plan tiers `[{name, price, features[]}]`, use nested loop to render each feature row
+
+**React / Next.js:**
+* ⬜ RW-3: Render a product catalog in React using `.map()` — use conditional rendering to show "Out of Stock" badge if `stock === 0`, "Low Stock" if `stock < 5`
+* ⬜ RW-4: Build a Next.js FAQ accordion — loop through a `faq` array, use `if` to check which item is open, toggle with a boolean flag per item
+
+**Airtable API:**
+* ⬜ RW-5: Loop through Airtable records with `for...of` — use `if/else if/else` to bucket each record as "New", "In Progress", "Done", or "Unknown"
+* ⬜ RW-6: Fetch Airtable records and display only those where `Status === "Active"` AND `Priority === "High"` — combine conditions with `&&`
+
+**Shopify:**
+* ⬜ RW-7: Loop through Shopify `line_items` and calculate order total — apply a `while` loop to keep applying discount codes until total stops decreasing
+* ⬜ RW-8: Build a variant size selector: use `switch` to map Shopify size codes (`"S"`, `"M"`, `"L"`, `"XL"`) to full labels and stock status messages
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Loop through a paginated API response — use `do...while` to keep fetching next pages while `data.nextPage !== null`, collect all results
+* ⬜ RW-10: Process form submissions from Flask API: loop through entries, separate valid from invalid using conditionals, log a summary count for each category
 
 ### **Day 3: Functions and Scope**
 
@@ -675,6 +771,30 @@
     - **Use cases**: Array-like objects, method reuse
     - **Modern**: Spread operator often better alternative
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a situation where you used closures to solve a real problem in your codebase."**
+   - *STAR hint*: Caching an API result between component renders without Redux, or an event handler that needed to capture a value at creation time. Describe the specific need, why a closure fit better than passing a param, the implementation, and the outcome.
+
+2. **"Describe how you've organized utility/helper functions across a large React or Next.js project. What was your structure?"**
+   - *STAR hint*: Project getting messy, utils scattered everywhere. Created a `/utils` or `/lib` folder with domain-specific modules (`api.js`, `format.js`, `validate.js`). All pure functions — no side effects, easy to import anywhere and unit test independently.
+
+3. **"Has the `this` keyword ever caused a production bug for you? Walk me through what happened."**
+   - *STAR hint*: A class method or event listener losing its `this` context (returns `undefined`). Describe identifying it with `console.log(this)`, the fix (arrow function or `.bind()`), and how you now avoid the pattern.
+
+**Experience-Based Conceptual:**
+4. **"How do you share utility functions between your React client components and Next.js API routes without duplication?"**
+   - *Answer framework*: `/lib` or `/utils` folder with pure functions that have no DOM dependencies. Import in both client and server contexts. For server-only utils (DB access, secrets), keep in `/lib/server/` and never import in client components.
+
+5. **"When calling the Airtable API or Shopify API, how do you manage the API key — where does it live in your code and why?"**
+   - *Answer framework*: `.env` file → `process.env.AIRTABLE_API_KEY`. Never in global scope, never in client-side JS bundle. Server-side only (Next.js API routes, Laravel, Flask). Accessed via a module-level constant at the top of the service file, not inline in each function.
+
+6. **"What's the difference between a pure function and a function with side effects? Give an example of each from your actual projects."**
+   - *Answer framework*: Pure = `formatPrice(amount) → string` (same input, same output, no external changes). Side effect = `saveToAirtable(data)` (modifies external state). In practice, keep business logic in pure functions and push side effects to the edges of the codebase.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Create a reusable `isEven()` function
 * ✅ Task 2: Check palindrome using function
@@ -813,6 +933,30 @@
 * ✅ Task 103: Implement infinite scroll with throttle
 * ✅ Task 104: Create a form validator using closures
 * ✅ Task 105: Build a middleware pattern for function execution
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Write a reusable `formatCurrency(amount, currency = 'USD')` function — use it across a GoDaddy product page for consistent price display
+* ⬜ RW-2: Create a `debounce(fn, delay)` utility and attach it to a search input — prevents API call on every keystroke
+
+**React / Next.js:**
+* ⬜ RW-3: Build a `useLocalStorage(key, defaultValue)` custom hook using closures — persists cart or filter state across page refreshes without Redux
+* ⬜ RW-4: Write a `withAuth(Component)` higher-order component — use function scope to check if a JWT token exists in `localStorage` before rendering protected pages
+
+**Airtable API:**
+* ⬜ RW-5: Create an `airtableFetch(tableName, filterFormula)` function that encapsulates base URL, API key, and headers in a closure — call it from multiple components
+* ⬜ RW-6: Build `createRecord(table, data)` and `updateRecord(table, id, data)` as pure functions — keep the API key in module scope, not global
+
+**Shopify:**
+* ⬜ RW-7: Write a `calculateCartTotal(items, discountCode = null)` function — use default parameters, handle free shipping threshold inside
+* ⬜ RW-8: Create a `buildShopifyURL(handle, ...params)` utility using rest parameters and template literals — generates clean product/collection URLs
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Build an `apiRequest(endpoint, method = 'GET', body = null)` wrapper — use closure over base URL and auth token, works for both Laravel and Flask endpoints
+* ⬜ RW-10: Implement a function pipeline: `validateInput → sanitize → sendToAPI` — each is a pure function, compose them with `pipe(f1, f2, f3)(data)`
 
 ---
 
@@ -963,6 +1107,30 @@
     - Multiple variables can reference same array
     - Changes reflect in all references
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a time you had to manage a complex array-based state in a React app. What were the challenges?"**
+   - *STAR hint*: Cart state with add/remove/update qty operations. The mutation trap (`push()` on state directly didn't trigger re-render). How you fixed it (spread, `map`, `filter`). How you structured the state update functions for readability.
+
+2. **"Describe a performance problem caused by incorrect array operations that affected your app. How did you diagnose it?"**
+   - *STAR hint*: A large array passed as a prop being recreated on every render (e.g., `const x = [...]` inside a component body), causing child re-renders. Profiled with React DevTools, fixed with `useMemo`, explained the shallow equality issue.
+
+3. **"Have you ever accidentally mutated state in React? What was the symptom and how did you fix it?"**
+   - *STAR hint*: Used `arr.push()` or `arr.sort()` (mutates in-place) on state array. State didn't update visually. Fixed by creating a new array with spread `[...arr, newItem]` or `.slice()`. Added an ESLint rule or code review note to prevent recurrence.
+
+**Experience-Based Conceptual:**
+4. **"When you receive a paginated list of Airtable records (100 per page), how do you combine all pages into a single array for client-side operations?"**
+   - *Answer framework*: Recursive or loop-based fetch, accumulate with spread `[...allRecords, ...pageRecords]`, or `Array.prototype.concat()`. Store in state or cache. Mention handling the `offset` field Airtable provides for pagination.
+
+5. **"In a Shopify cart, you have `line_items` as an array of objects. How do you add a product if it doesn't exist, or increment quantity if it does?"**
+   - *Answer framework*: `findIndex()` to check if exists, if `-1` → spread + new item, if found → `map()` to create new array with updated qty on matched item. Never mutate the original array.
+
+6. **"How would you implement undo/redo for a content editor using only arrays? No external libraries."**
+   - *Answer framework*: `history = [state0, state1, state2]`, `pointer = currentIndex`. Undo = `pointer--`, redo = `pointer++`, new action = `history.slice(0, pointer+1).concat([newState])` (truncates forward history). Classic approach shown in interviews.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Sum of array elements
 * ✅ Task 2: Find max/min in array
@@ -1070,6 +1238,30 @@
 * ✅ Task 78: Priority queue basics with arrays
 * ✅ Task 79: Find median of sorted arrays
 * ✅ Task 80: Implement array-based LRU cache
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Build a shopping cart: store items as `[{id, name, price, qty}]` — implement `addItem`, `removeItem`, `updateQty`, `clearCart` using array operations
+* ⬜ RW-2: Create a "Recently Viewed" products list (max 5 items) using an array — if already exists move to front, remove oldest if limit exceeded
+
+**React / Next.js:**
+* ⬜ RW-3: Build React cart state with `useState`: array of products — `addToCart` checks for duplicates by ID, `removeFromCart` filters by ID, renders count badge
+* ⬜ RW-4: Implement a Next.js image gallery — store image URLs in array, support prev/next navigation with index, wrap around at boundaries
+
+**Airtable API:**
+* ⬜ RW-5: Fetch all Airtable records into an array — implement `getById(id)` using `find()`, `getByIndex(i)` with bounds check, display "Not Found" gracefully
+* ⬜ RW-6: Store Airtable linked record IDs in an array — loop through to fetch each related record separately and build a joined display object
+
+**Shopify:**
+* ⬜ RW-7: Parse a Shopify order's `line_items` array — extract `{productId, title, qty, price}` into a clean summary, calculate subtotal per item
+* ⬜ RW-8: Build a product variant matrix: store all size × color combinations in a 2D array — look up availability by `[sizeIndex][colorIndex]`
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Receive an array of records from a Laravel API — shallow copy before sorting/filtering so the original response is never mutated
+* ⬜ RW-10: Implement client-side pagination: get all records from Flask API into one array, then slice by `(page - 1) * pageSize` to get current page
 
 ### **Day 5: String Basics**
 
@@ -1219,6 +1411,30 @@
     - Example: ``sql`SELECT * FROM ${table}` ``
     - Can transform or validate interpolated values
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a time string manipulation was critical to a feature you built. What was the trickiest part?"**
+   - *STAR hint*: SEO slug generation for Next.js dynamic routes — edge cases with apostrophes, accented characters, double spaces, leading/trailing hyphens. Built a robust `generateSlug()` utility, wrote 10 test cases for edge cases, now used across the codebase.
+
+2. **"Have you ever had a security vulnerability related to user-input strings (XSS, injection)? How was it caught and fixed?"**
+   - *STAR hint*: User input rendered with `innerHTML` or `dangerouslySetInnerHTML` without sanitization. Discovered in code review or security scan. Fixed with DOMPurify / `textContent`, added CSP headers, made it a PR checklist item.
+
+3. **"Describe a time you had to parse or transform data from an external API where everything came as strings."**
+   - *STAR hint*: Shopify `total_price: "29.99"`, Airtable dates as ISO strings `"2024-03-15T10:30:00.000Z"`. Built a centralized `parseApiResponse()` normalizer — runs once at the API layer, converts types, formats dates, so components always receive clean data.
+
+**Experience-Based Conceptual:**
+4. **"How do you generate SEO-friendly URL slugs for Next.js dynamic product/blog pages? What edge cases do you handle?"**
+   - *Answer framework*: Lowercase → trim → replace spaces with `-` → remove special chars with regex `[^a-z0-9-]` → collapse double hyphens → strip leading/trailing hyphens. Handle accented chars with `normalize('NFD')`. Make it a shared `/utils/slug.js` function.
+
+5. **"In a Shopify storefront, product descriptions often contain HTML tags. How do you handle this when you need to truncate to 100 characters?"**
+   - *Answer framework*: Strip HTML first (`replace(/<[^>]*>/g, '')`) then truncate, OR use a DOM parser. Never truncate raw HTML mid-tag. For full display, use `dangerouslySetInnerHTML` with sanitization.
+
+6. **"When building a search feature over Airtable data, how do you implement case-insensitive partial matching on the client side?"**
+   - *Answer framework*: `record.name.toLowerCase().includes(query.toLowerCase().trim())`. For better UX: debounce the query, normalize accents, handle empty query (show all). For larger datasets: consider Airtable's `filterByFormula` with `SEARCH()` to offload to server.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Reverse a string (multiple methods)
 * ✅ Task 2: Count vowels and consonants
@@ -1340,6 +1556,30 @@
 * ✅ Task 88: Implement text truncation with ellipsis
 * ✅ Task 89: Highlight search terms in text
 * ✅ Task 90: Create initials from full name
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Generate a URL-safe filename from a product title: `"Men's Blue T-Shirt #1"` → `"mens-blue-t-shirt-1"` (for GoDaddy media uploads)
+* ⬜ RW-2: Build an email template system: replace `{{name}}`, `{{orderNumber}}`, `{{total}}` placeholders with real values using `.replace()` or template literals
+
+**React / Next.js:**
+* ⬜ RW-3: Create a Next.js `generateSlug(title)` utility: convert blog post or product titles into SEO-friendly URL segments (lowercase, hyphens, no special chars)
+* ⬜ RW-4: Build a `truncateText(text, maxLength)` component for product cards — append `"..."` if truncated, add a "Read more" toggle
+
+**Airtable API:**
+* ⬜ RW-5: Parse Airtable ISO date strings (`"2024-03-15T10:30:00.000Z"`) — format for display as `"March 15, 2024"` and relative time like `"3 days ago"`
+* ⬜ RW-6: Build a case-insensitive record search: use `.toLowerCase().includes(query.toLowerCase())` on Airtable name fields to filter results
+
+**Shopify:**
+* ⬜ RW-7: Parse a Shopify product handle back to a readable title: `"mens-blue-t-shirt"` → `"Mens Blue T Shirt"` — capitalize each word
+* ⬜ RW-8: Extract and display domain from a full Shopify store URL: `"https://my-store.myshopify.com/products/item"` → `"my-store.myshopify.com"`
+
+**VPS / Server:**
+* ⬜ RW-9: Build a server log line parser: given `"[2024-03-15 10:30:22] ERROR: DB connection failed"` — extract timestamp, log level, and message using string methods
+* ⬜ RW-10: Create a `.env` string parser: given a multiline string of `KEY=value` pairs, convert to a JS object `{KEY: value}` using split/trim
 
 ### **Day 6: Array Methods**
 
@@ -1495,6 +1735,30 @@
     - More efficient but less readable
     - Libraries: Ramda, Lodash/fp support transducers
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a data transformation task where chaining `map/filter/reduce` was key to your solution."**
+   - *STAR hint*: Transforming raw Airtable records for a chart/table — needed to filter active records, reshape field names to camelCase, then reduce to totals. Chained in one pipeline. Readable, no temp variables. Showed in PR as the "right way" for the team.
+
+2. **"Describe a time you improved the readability of some code by replacing loops with array methods. What feedback did you get?"**
+   - *STAR hint*: Replaced nested `for` loops computing totals/groupings with a single `.reduce()`. PR reviewer commented on clarity. Became a team convention. (Have an example ready — even from a side project.)
+
+3. **"Have you ever written a `.map().filter().map()` chain that caused performance issues with a large dataset? How did you optimize it?"**
+   - *STAR hint*: Three chained array methods creating three intermediate arrays on 10k+ records. Used a single `.reduce()` that did all three operations in one pass. Or switched to server-side filtering to reduce the dataset before it reaches the client.
+
+**Experience-Based Conceptual:**
+4. **"How do you use `reduce()` to transform an array of Shopify orders into an object grouped by fulfillment status?"**
+   - *Answer framework*: `orders.reduce((acc, order) => { const key = order.fulfillment_status || 'pending'; acc[key] = [...(acc[key] || []), order]; return acc; }, {})`. Result: `{pending: [...], fulfilled: [...]}`. Classic reduce-to-object pattern, expect to write this in an interview.
+
+5. **"When should you add `useMemo` around a `.filter()` or `.sort()` in a React component? When is it overkill?"**
+   - *Answer framework*: Add `useMemo` when: the array has 100+ items AND the sort/filter is O(n log n) AND the component re-renders frequently for unrelated reasons. Overkill when: array is small (< 20 items), or the component rarely re-renders. Measure first with React Profiler, don't premature-optimize.
+
+6. **"What happens if you call `.map()` on an Airtable record's linked-field that might be `null` or `undefined`? How do you guard against it?"**
+   - *Answer framework*: `record.linkedField?.map(fn) ?? []` — optional chaining prevents TypeError, nullish coalescing ensures you always get an array. Alternative: `(record.linkedField || []).map(fn)`. Make this a habit for all API data. Never assume any field is always present.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Double each element using `map`
 * ✅ Task 2: Filter even numbers using `filter`
@@ -1627,6 +1891,30 @@
 * ✅ Task 99: Optimize nested loops with array methods
 * ✅ Task 100: Build a data transformation library
 
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Filter a product list by category and price range using `.filter()` — update the DOM dynamically on input change, no page reload
+* ⬜ RW-2: Use `.reduce()` to calculate cart subtotal, tax (8%), and grand total from `[{price, qty}]` — display each value separately
+
+**React / Next.js:**
+* ⬜ RW-3: Build a Next.js product listing page: chain `.filter()` (search) + `.sort()` (price) + `.map()` (render cards) in one clean pipeline
+* ⬜ RW-4: Create a React analytics dashboard: `.reduce()` Airtable records to get `totalSales`, `avgOrderValue`, and `countByStatus` in one pass
+
+**Airtable API:**
+* ⬜ RW-5: Transform raw Airtable records with `.map()` — normalize field names from `"Order Total (USD)"` to `orderTotal`, rename all fields to camelCase
+* ⬜ RW-6: Use `.filter()` to show only Airtable records modified in the last 7 days — compare ISO date string field with `new Date(Date.now() - 7 * 86400000)`
+
+**Shopify:**
+* ⬜ RW-7: Use `.map()` to transform raw Shopify products into `{id, title, price, image}` shape — feed directly into a product card component
+* ⬜ RW-8: Use `.reduce()` on Shopify orders to group by fulfillment status: output `{pending: [...], fulfilled: [...], cancelled: [...]}`
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Handle a Laravel paginated response: `.flatMap()` all pages into one array, then chain `.filter().sort()` for client-side data manipulation
+* ⬜ RW-10: Build a report generator from Flask API data: chain `.filter().map().reduce()` to produce a formatted summary — total revenue, top product, avg order
+
 ---
 
 ## **🗓️ Week 3: Core DSA – Searching & Sorting**
@@ -1698,6 +1986,30 @@
     - Check if mid value is valid answer
     - Used in optimization problems
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a time you implemented a search feature in a production app. What approach did you take and why?"**
+   - *STAR hint*: Product or record search in Shopify/Airtable. Started with linear search (fine for < 200 items). As data grew, added debounce + server-side filtering. Or sorted the list once and used binary search for instant client-side lookups. Explain the decision boundary.
+
+2. **"Have you ever had a search feature that was too slow or causing too many API calls? How did you fix it?"**
+   - *STAR hint*: Search triggering an API call on every keystroke. Added `debounce(fn, 300)` — reduced calls by 90%. Also added a loading spinner so users knew it was working. If still slow, cached results in a Map keyed by query string.
+
+3. **"Describe a situation where you had to choose between client-side and server-side search. How did you make the decision?"**
+   - *STAR hint*: Rule of thumb: < 500 records = client-side (fetch once, filter locally, instant UX). > 500 records or sensitive data = server-side (Airtable `filterByFormula`, Shopify API search, or database query). Describe a specific project where you applied this.
+
+**Experience-Based Conceptual:**
+4. **"For a Shopify storefront with 500+ products, how would you implement a fast product search? Walk through your full approach."**
+   - *Answer framework*: On page load, fetch all products into a cached array. Sort by title alphabetically. Use binary search for exact match lookups (O(log n)). For partial/fuzzy search, linear scan with `.includes()` + debounce (acceptable for 500 items). Cache results per query in a Map.
+
+5. **"How would you build real-time search for an Airtable-backed app while respecting the 5 requests/second rate limit?"**
+   - *Answer framework*: Debounce user input (300ms delay), cancel previous pending request if new query arrives. Cache results: if query was searched before within 60 seconds, return cached. Use Airtable `filterByFormula` with `SEARCH()` to do server-side filtering — return only matching records, not all 1000.
+
+6. **"When is binary search appropriate in a real frontend app, and when would you just use a database or API query instead?"**
+   - *Answer framework*: Binary search is appropriate for: static sorted data already on the client (e.g., country list, pre-fetched sorted products), repeated lookups in a session (build index once, search many times). Use API/DB query when: data is too large for client, data changes frequently, or search needs full-text/fuzzy matching.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Implement linear search
 * ✅ Task 2: Implement binary search (iterative)
@@ -1726,6 +2038,30 @@
 * ✅ Task 23: Book allocation problem
 * ✅ Task 24: Painter's partition problem
 * ✅ Task 25: Find nth root using binary search
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Build a product search bar for a static HTML/JS site — linear search through a product array on keyup, highlight matching text in results
+* ⬜ RW-2: Create a country/city autocomplete input — sort the list alphabetically first, then use binary search to find suggestions as user types
+
+**React / Next.js:**
+* ⬜ RW-3: Build a Next.js `/search` page — client-side binary search on sorted product titles cached from Shopify API, instant results with no re-fetch
+* ⬜ RW-4: Implement a "Jump to Record" feature in a React data table — binary search sorted records by ID to scroll directly to that row
+
+**Airtable API:**
+* ⬜ RW-5: Fetch all Airtable records once, sort by record ID, then use binary search client-side for instant lookup — avoid repeated API calls
+* ⬜ RW-6: Build a search-as-you-type feature over cached Airtable data — linear search on name/title field, debounced to prevent excessive re-renders
+
+**Shopify:**
+* ⬜ RW-7: Given a sorted Shopify product price list, use binary search to find the cheapest product at or above a user's minimum budget
+* ⬜ RW-8: Implement SKU lookup: linear search through Shopify `line_items` to find a product by exact SKU code, return `null` with a friendly message if not found
+
+**VPS / Server:**
+* ⬜ RW-9: Parse sorted server access logs — use binary search to find the first log entry after a given timestamp (e.g., "show all errors after 3:00 PM")
+* ⬜ RW-10: Build an IP blocklist checker — given a sorted array of blocked IP ranges, use binary search to check if an incoming request IP should be blocked
 
 ### **Day 8: Sorting Algorithms**
 
@@ -1825,6 +2161,30 @@
     - Min/Max Heap: O(n log k)
     - Don't sort entire array
 
+#### **Behavioral & Experience-Based Questions**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Behavioral Questions:**
+1. **"Tell me about a time you implemented a custom sort for a complex business requirement. What was the sorting criteria?"**
+   - *STAR hint*: Sorting Shopify products by discount percentage, then by rating for ties, then alphabetically. Built a chained comparator function. In code review, the team asked "why not sort server-side?" — explain your reasoning (avoid extra API call, already have data client-side).
+
+2. **"Have you ever had a sorting bug in production — items appearing in the wrong order? How did you identify and fix it?"**
+   - *STAR hint*: JavaScript's `.sort()` converts to strings by default — `[10, 9, 2].sort()` gives `[10, 2, 9]`. Classic numeric sort bug. Fix: always pass a comparator `(a, b) => a - b`. Discovered by testing with numbers > 9 in QA. Added test for this case.
+
+3. **"Describe how you've handled sorting a large dataset that was too big to load all at once."**
+   - *STAR hint*: 5000+ Airtable or Shopify records. Server-side sort via API query params (`sortField`, `sortDirection`). Client-side sort only for the current page. Paginated display. Explain the UX tradeoff: server-sort = correct global order; client-sort = only sorts current page.
+
+**Experience-Based Conceptual:**
+4. **"Shopify API returns products in a random order. How do you implement a 'Sort by: Price Low to High / High to Low / Newest' dropdown on your storefront?"**
+   - *Answer framework*: Create a `sortProducts(products, sortKey)` function with a `switch`: `price-asc` → `(a,b) => a.price - b.price`, `price-desc` → reverse, `newest` → compare `createdAt` dates. Store the current sort key in state, re-sort the cached array on change — no re-fetch needed.
+
+5. **"Why is stability important when sorting a list of orders, and how do you ensure stable sort in JavaScript?"**
+   - *Answer framework*: Stability = equal elements keep their original relative order. Matters when sorting by status then by date — you want same-status orders in their original time order. Modern JS `.sort()` is stable (guaranteed since V8 7.0 / Node 11+). For older environments, use a stable sort library or add a tiebreaker key.
+
+6. **"You have Airtable records with timestamps and you want to sort by date descending. What pitfalls should you watch for?"**
+   - *Answer framework*: Airtable returns dates as ISO strings — compare as `new Date(b.createdAt) - new Date(a.createdAt)`. Pitfall 1: string comparison of dates only works if format is consistent ISO. Pitfall 2: `null` dates crash the comparator — add null check (`a.createdAt ? ... : -1`). Pitfall 3: `.sort()` mutates the array — spread/copy first.
+
 #### **Programming Tasks (Basic)**
 * ✅ Task 1: Implement Bubble Sort
 * ✅ Task 2: Implement Selection Sort
@@ -1859,6 +2219,30 @@
 * ✅ Task 29: Relative sort array
 * ✅ Task 30: Height checker (minimum students not in positions)
 
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Sort a product list on a static HTML page by price ascending/descending when user clicks a button — use `.sort()` with a comparator, re-render the list
+* ⬜ RW-2: Build a sortable admin table for order history — toggle ascending/descending sort on any column header (name, date, amount)
+
+**React / Next.js:**
+* ⬜ RW-3: Build a React product grid with sort controls: "Price: Low to High", "Price: High to Low", "Newest First", "Best Seller" using custom comparator functions
+* ⬜ RW-4: Create a Next.js admin orders page: sort by `createdAt` descending; for same-day orders, secondary sort by `totalAmount` largest first
+
+**Airtable API:**
+* ⬜ RW-5: Fetch Airtable inventory records and sort client-side by `stockCount` ascending — highlight items where `stockCount < 5` as "Low Stock" in red
+* ⬜ RW-6: Sort Airtable form submissions by submission date and render as a chronological activity timeline
+
+**Shopify:**
+* ⬜ RW-7: Sort Shopify products by discount amount (`compareAtPrice - price`) descending — display as "Best Deals" section showing highest savings first
+* ⬜ RW-8: Multi-level sort on Shopify orders: primary = fulfillment status order (`pending → processing → fulfilled`), secondary = order total descending
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Receive an unsorted list from Flask API with identical timestamps — use merge sort (stable) to preserve original insertion order for ties
+* ⬜ RW-10: Build a leaderboard: fetch user scores from Laravel API, sort descending by score; for tied scores, sort alphabetically by name (stable sort required)
+
 ---
 
 ## **🗓️ Week 4: Intermediate DSA – Recursion and Hashing**
@@ -1887,6 +2271,60 @@
 
 * ✅ Task 10: Generate all permutations
 
+#### **Interview Questions & Behavioral**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Conceptual Questions:**
+1. **What is recursion and when would you prefer it over a loop?**
+   - When the problem is naturally self-similar (trees, nested structures, divide & conquer). Use recursion for clarity on hierarchical data. Use iteration when stack depth is a concern (deep nesting) or for simple sequential tasks.
+
+2. **What is a base case? What happens if you forget it?**
+   - The condition that stops recursion. Without it, the function calls itself forever → call stack overflow → `RangeError: Maximum call stack size exceeded`. Every recursive function MUST have a base case.
+
+3. **What is "call stack overflow" and how do you prevent it in real projects?**
+   - Happens when recursion depth exceeds the engine's stack limit (~10k-15k calls in V8). Prevention: add a depth/max guard parameter, convert to iterative with an explicit stack, or use tail-call optimization (limited browser support).
+
+4. **What is memoization in recursion? How does it improve performance?**
+   - Caching results of expensive recursive calls. `memo[n]` stores already-computed values. Converts exponential O(2ⁿ) to linear O(n). Essential for Fibonacci, DP problems. Real-world: cache API responses, avoid redundant tree traversals.
+
+5. **Depth-First Search (DFS) vs Breadth-First Search (BFS) — when to use each in a real app?**
+   - DFS: Go deep first. Good for: finding paths, checking if a path exists, tree traversal (pre/in/post-order). Uses recursion or a stack. BFS: Level by level. Good for: shortest path, nearest neighbor, level-order rendering. Uses a queue.
+
+**Behavioral Questions:**
+6. **"Tell me about a real feature where you used recursion. Could you have done it iteratively? Why did you choose recursion?"**
+   - *STAR hint*: Rendering a nested category menu or nested comments. Recursion was more natural than manually managing a stack. The data had unknown depth. Mention any base case you almost forgot, or a stack overflow you hit in testing with deeply nested data.
+
+7. **"Have you ever hit a stack overflow in a real project? What caused it and how did you debug it?"**
+   - *STAR hint*: Recursive function without a proper base case, or accidentally calling a function that called itself indirectly. Browser console showed `RangeError`. Added `console.log(depth)` to trace call depth. Fixed with a depth limit or converted to iterative.
+
+8. **"Describe a time you had to traverse or render nested/hierarchical data (categories, menus, comments). What was your approach?"**
+   - *STAR hint*: Shopify category tree, nested Airtable records, or a comment thread with replies. Used a recursive React component or recursive function. Handled unknown depth, set a max level, styled each level with indentation.
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Recursively build an HTML `<ul>/<li>` nested menu from a JS category tree `{name, children[]}` — no hardcoded depth limit
+* ⬜ RW-2: Write a recursive `deepClone(obj)` function — use it to safely clone Shopify product config objects before modifying, avoid reference mutation bugs
+
+**React / Next.js:**
+* ⬜ RW-3: Build a recursive React `<TreeNode>` component that renders a Shopify collections hierarchy with collapsible expand/collapse per node
+* ⬜ RW-4: Write a recursive `getAllRoutes(pagesDir)` function for a Next.js sitemap generator — traverse nested page folder structure, return all valid URL paths
+
+**Airtable API:**
+* ⬜ RW-5: Airtable linked records can be deeply nested (Task → Project → Client → Account) — write a recursive `resolveLinks(recordId, depth)` function (max 3 levels)
+* ⬜ RW-6: Recursively flatten a grouped Airtable view (records grouped by field, sub-grouped by another field) into a flat `[record]` array
+
+**Shopify:**
+* ⬜ RW-7: Shopify collections can have sub-collections — recursively traverse a mocked collection tree to collect all leaf-level product handles into a flat list
+* ⬜ RW-8: Build a recursive discount calculator: `applyDiscount(price, rules[])` — each rule may trigger sub-rules (buy X get Y), apply them recursively
+
+**VPS / Server:**
+* ⬜ RW-9: Write a recursive directory scanner using a nested JS object (simulating VPS file system) — output all file paths like `ls -R`, sorted by folder depth
+* ⬜ RW-10: Recursively calculate total size from `{name, size, children[]}` file tree — mirrors `du -sh` on a Linux VPS, display human-readable KB/MB
+
 ### **Day 10: Hashing and Frequency Maps**
 
 * ✅ Use `Map`, `Set`, objects for hashing
@@ -1910,6 +2348,60 @@
 * ✅ Task 9: First non-repeating character
 
 * ✅ Task 10: Check isomorphic strings
+
+#### **Interview Questions & Behavioral**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Conceptual Questions:**
+1. **What is a hash map? What are the time complexities for get, set, and delete?**
+   - Key-value store with O(1) average for get/set/delete. JavaScript's `Map` is an ordered hash map. Plain objects `{}` are also hash maps but with prototype chain quirks. Collisions are handled internally — you don't manage them manually in JS.
+
+2. **When would you use a `Map` vs a plain object `{}`? Is there a performance difference?**
+   - `Map`: keys can be any type (not just strings), maintains insertion order reliably, has `.size`, better for frequent add/delete. Object `{}`: simpler syntax, JSON-serializable, slightly faster for string keys. Use `Map` for dynamic lookup tables, use `{}` for fixed-shape config/data.
+
+3. **When is a `Set` more appropriate than an array? What's the performance difference?**
+   - `Set`: O(1) `.has()`, automatically deduplicates, better for membership checks. Array: O(n) `.includes()`, maintains order with duplicates, supports indexing. Use `Set` when uniqueness matters and you don't need index access. Convert back to array with `[...set]`.
+
+4. **What is the time complexity of common `Map` operations? What can degrade it to O(n)?**
+   - Average: O(1) for get/set/delete/has. Worst case: O(n) if many keys hash to the same bucket (hash collision). In practice, JS engines handle this well. Don't use non-primitive objects as keys unless you need identity-based lookup.
+
+5. **How would you implement a simple in-memory cache with a TTL (time-to-live) using a Map?**
+   - Store: `cache.set(key, {data, expiresAt: Date.now() + ttl})`. Get: check if `Date.now() < entry.expiresAt`, return data or delete + refetch. Optional: periodic cleanup or cleanup on access. This pattern is common in real apps.
+
+**Behavioral Questions:**
+6. **"Tell me about a time you used a hash map to significantly speed up a slow operation in your code."**
+   - *STAR hint*: Replaced an O(n) `.find()` in a loop (O(n²) total) with a `Map` for O(1) lookup. Built the map once before the loop. Classic interview answer. Mention the specific data — e.g., building a `productMap` keyed by SKU for cart item lookup.
+
+7. **"Have you ever needed to deduplicate data from an API? How did you handle it?"**
+   - *STAR hint*: Airtable sometimes returns duplicate records across paginated calls, or Shopify webhooks fire twice. Used a `Set` of IDs to track seen records. Filter before processing: `if (seen.has(id)) continue; seen.add(id);`.
+
+8. **"Describe a time you implemented a client-side caching layer to reduce redundant API calls. What was the structure?"**
+   - *STAR hint*: Caching Airtable table data in a `Map` with `{data, fetchedAt}`. Check cache before every API call. If `Date.now() - fetchedAt < 60000`, serve from cache. Reduced API calls from 50/session to 3/session. Mention the Airtable rate limit as the motivation.
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Use a `Map` to cache GoDaddy static site API responses by URL — serve cached response if called again within 60 seconds, otherwise refetch
+* ⬜ RW-2: Use a `Set` to collect unique product category tags across all displayed products — render as a filter tag cloud with click-to-filter
+
+**React / Next.js:**
+* ⬜ RW-3: Implement a React data-fetch cache using `Map` — key = Airtable table name, value = `{data, fetchedAt}` — invalidate after 5 minutes
+* ⬜ RW-4: Build a visited-pages tracker in Next.js with a `Set` — count unique page views per session, display as "X pages visited" without counting duplicates
+
+**Airtable API:**
+* ⬜ RW-5: Build a frequency dashboard from Airtable records — count how many records exist per `Status` value using a `Map`, display as a bar-chart-style summary
+* ⬜ RW-6: Deduplicate Airtable customer records by email using a `Set` — log duplicate emails and count how many were found
+
+**Shopify:**
+* ⬜ RW-7: Build a Shopify product tag frequency map — given products each with `tags[]`, count tag frequency with a `Map`, sort by popularity for a tag cloud
+* ⬜ RW-8: Create a product SKU lookup table using `Map` — build once from product list for O(1) lookup by SKU instead of O(n) array search on every cart add
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Cache Laravel API responses in a `Map` with TTL — if `Date.now() - cachedAt > 60000` ms, refetch; otherwise return cached data immediately
+* ⬜ RW-10: Detect duplicate form submissions: use a `Set` of `email+timestamp` strings — flag and count re-submissions from the Flask API response
 
 ---
 
@@ -1939,6 +2431,60 @@
 
 * ✅ Task 10: Linked list to number
 
+#### **Interview Questions & Behavioral**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Conceptual Questions:**
+1. **What is a linked list and how does it differ from an array?**
+   - Array: contiguous memory, O(1) index access, O(n) insert/delete at middle. Linked list: non-contiguous nodes with pointers, O(n) access by index, O(1) insert/delete at head. In JS, arrays are the go-to; linked lists are used when you need efficient front-insertion or as building blocks for stacks/queues.
+
+2. **What is the time complexity of insertion at head, tail, and middle in a singly linked list?**
+   - Head: O(1) — just update the head pointer. Tail: O(n) without tail pointer, O(1) with a tail pointer. Middle: O(n) to find the position, O(1) to actually insert. Compare to array: tail = O(1) amortized, middle = O(n) shift.
+
+3. **What is a doubly linked list? When would you use one over a singly linked list?**
+   - Each node has both `next` and `prev` pointers. Use when you need to traverse backwards (undo/redo, browser history, LRU cache). Cost: double the pointer storage, more complex insertion/deletion. Most real-world use cases for "linked list" in frontend apps are doubly linked.
+
+4. **How would you detect a cycle in a linked list?**
+   - Floyd's cycle detection (two-pointer / tortoise & hare): fast pointer moves 2 steps, slow moves 1. If they meet, there's a cycle. Time: O(n), Space: O(1). Alternative: use a `Set` of visited nodes — simpler but O(n) space.
+
+5. **What is an LRU cache and how is a doubly linked list used in it?**
+   - Least Recently Used cache: evicts the least recently accessed item when full. Doubly linked list + HashMap: list maintains access order (most recent at head, least at tail), hashmap provides O(1) lookup. On access: move node to head. On evict: remove tail. Standard interview question — be ready to code it.
+
+**Behavioral Questions:**
+6. **"Tell me about a time you needed a data structure that allowed efficient insertion or removal from both ends. How did you solve it?"**
+   - *STAR hint*: A "Recently Viewed" products list where you add to front and remove from back (deque behavior). Or a request queue needing front removal. Explain why array `shift()` was O(n) and why a linked list (or deque) was more efficient at scale.
+
+7. **"Have you ever built an undo/redo feature? How did you structure the history data?"**
+   - *STAR hint*: Used a doubly linked list (or array with a pointer). Each node = form state snapshot. Undo = traverse to prev node, redo = traverse to next. When user makes a new change after undo = truncate forward history. Explain time/space tradeoffs.
+
+8. **"Describe how you would design a 'recently viewed products' feature with a maximum of 10 items. What data structure fits best?"**
+   - *STAR hint*: Linked list (or deque): O(1) prepend, O(1) tail trim. Add to head on view, remove from tail when size > 10, move to head if already exists (avoid duplicates). Store in `localStorage` for persistence. Explain why array `unshift()` works for small N but linked list is theoretically better.
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Implement browser-style Back/Forward navigation for a GoDaddy single-page site using a doubly linked list of page URLs — Back pops, Forward re-appends
+* ⬜ RW-2: Build a "Recently Played" media queue (max 10 items) as a linked list — prepend new plays to head, auto-trim tail when length exceeds 10
+
+**React / Next.js:**
+* ⬜ RW-3: Implement undo/redo for a React rich-text editor using a doubly linked list — each node stores a full form snapshot; undo = prev, redo = next
+* ⬜ RW-4: Build a Next.js in-app breadcrumb navigator using a linked list — each link pushes to the list, "Go Back" traverses to previous node
+
+**Airtable API:**
+* ⬜ RW-5: Model an Airtable "linked records" chain as a JS linked list — traverse Task → linked Project → linked Client to build a context breadcrumb display
+* ⬜ RW-6: Build a batch-update queue for Airtable (5 requests/sec limit) — enqueue pending updates as linked list nodes, process sequentially with 200ms delay
+
+**Shopify:**
+* ⬜ RW-7: Model a Shopify checkout flow as a doubly linked list — steps: Cart → Address → Shipping → Payment → Confirmation — support prev/next navigation
+* ⬜ RW-8: Build a "Customers also bought" product chain — each product node links to a recommended next product, traverse to build a recommendations strip
+
+**VPS / Server:**
+* ⬜ RW-9: Simulate a VPS process list as a linked list — each node = `{pid, name, memory}` — implement `killProcess(pid)` to remove by PID in O(n)
+* ⬜ RW-10: Model a server request log as a linked list (prepend = O(1)) — traverse to find all requests from a specific IP, count them, return most recent 5
+
 ### **Day 12: Stack and Queue**
 
 * ✅ Stack using array and linked list
@@ -1962,6 +2508,60 @@
 * ✅ Task 9: Stack using two queues
 
 * ✅ Task 10: Next greater element
+
+#### **Interview Questions & Behavioral**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Conceptual Questions:**
+1. **What is a stack? What are its core operations and time complexities?**
+   - LIFO: Last In, First Out. Operations: `push` O(1), `pop` O(1), `peek/top` O(1), `isEmpty` O(1). Used for: undo/redo, function call stack, expression parsing, browser history (back button), DFS traversal.
+
+2. **What is a queue? How does it differ from a stack?**
+   - FIFO: First In, First Out. Operations: `enqueue` O(1), `dequeue` O(1) (with head pointer), `front` O(1). Used for: task processing, print queues, BFS traversal, API request queues, notification systems. Stack = plates pile; Queue = checkout line.
+
+3. **How would you implement a queue using two stacks? What's the time complexity?**
+   - Two stacks: `inbox` and `outbox`. Enqueue: push to `inbox`. Dequeue: if `outbox` empty, pour all from `inbox` to `outbox`, then pop from `outbox`. Amortized O(1) dequeue. Common interview question — explain the amortized analysis.
+
+4. **What is a monotonic stack? Give a real-world example of when you'd use one.**
+   - A stack that maintains elements in strictly increasing or decreasing order. Use case: "Next Greater Element" problem — find the next larger value for each element. Also used for: largest rectangle in histogram, stock span, temperature problems. Time: O(n).
+
+5. **What is a priority queue? When would you use one in a real app?**
+   - A queue where each element has a priority; highest priority dequeues first. Use cases: task scheduler (urgent tasks first), Dijkstra's algorithm, notification priority (errors before info). Usually implemented with a binary heap. JS has no built-in — use a library or implement a min-heap.
+
+**Behavioral Questions:**
+6. **"Tell me about a feature you built that naturally fit a queue or stack data structure. What was it and why did that structure fit?"**
+   - *STAR hint*: A multi-step form wizard (stack — push completed steps, pop on back), a notification display queue (FIFO — show oldest first, auto-remove after 5s), or an API rate-limiter queue (FIFO — process requests at a controlled rate). Describe the specific business need.
+
+7. **"Have you ever had to manage rate limiting when calling external APIs? How did you prevent hitting the limits?"**
+   - *STAR hint*: Airtable 5 req/sec or Shopify API limits. Built a queue of pending API calls, processed from front of queue with `setTimeout` delays between each. Or used a debounce/throttle on user-triggered calls. Describe the symptom (429 errors), the solution, and the result.
+
+8. **"Describe a multi-step checkout or wizard you've built. How did you manage navigation between steps and prevent skipping?"**
+   - *STAR hint*: Checkout flow (Cart → Address → Shipping → Payment → Confirmation). Used an array of step components with an `activeStep` index — could only advance if current step was valid. Optionally used a stack so "Back" was reliable. Describe validation between steps.
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Build a browser history stack for a GoDaddy single-page app — push URL on navigate, pop on back button, clear forward history when new page loads
+* ⬜ RW-2: Implement undo/redo for a plain JS canvas drawing tool — use two stacks (undo stack, redo stack), each node is an ImageData snapshot
+
+**React / Next.js:**
+* ⬜ RW-3: Build a multi-step checkout wizard in React using a stack — push completed steps, pop on "Back" button, validate current step before pushing "Next"
+* ⬜ RW-4: Create a Next.js toast notification queue — new notifications enqueue at the back, display one at a time, auto-dequeue after 4 seconds
+
+**Airtable API:**
+* ⬜ RW-5: Build an Airtable API request queue — Airtable rate limit is 5 req/sec — enqueue all `PATCH` update calls, process from front of queue with 200ms delay
+* ⬜ RW-6: Implement a task processing pipeline as a queue: when new Airtable records are created, enqueue them — dequeue one at a time to send email + update status
+
+**Shopify:**
+* ⬜ RW-7: Build a Shopify order processing queue — new webhook orders enqueue, a processor dequeues and calls fulfillment API one-by-one to prevent race conditions
+* ⬜ RW-8: Implement "Recently Viewed Products" as a stack in Shopify storefront JS — push product ID on view, pop duplicates, display top 5 as "Recently Viewed"
+
+**Laravel / Python Flask:**
+* ⬜ RW-9: Simulate a Flask background job queue — enqueue tasks (send email, resize image), process FIFO, display queue length and current job in a status panel
+* ⬜ RW-10: Build a formula parentheses validator for a Laravel input field — use a stack to check balanced `()`, `[]`, `{}` in user-entered formula strings
 
 ---
 
@@ -1991,6 +2591,60 @@
 
 * ✅ Task 10: Convert tree to sum tree
 
+#### **Interview Questions & Behavioral**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Conceptual Questions:**
+1. **What is a binary tree vs a binary search tree (BST)? What's the key invariant of a BST?**
+   - Binary tree: each node has at most 2 children, no ordering rule. BST: left child < parent < right child (all descendants, not just immediate). BST enables O(log n) search if balanced. Real-world: BSTs power database indexes and auto-complete sorted data.
+
+2. **What is the difference between BFS and DFS tree traversal? When would you use each?**
+   - DFS: Go deep before wide. Traversal types: pre-order (visit → left → right), in-order (left → visit → right = sorted for BST), post-order (left → right → visit). Uses a stack (recursive or explicit). BFS: Level by level, uses a queue. Use BFS for shortest path, level-order rendering, "find all nodes at depth N."
+
+3. **What is a balanced tree? Why does balance matter for performance?**
+   - A tree where the height of left and right subtrees differs by at most 1 (AVL) or the tree restructures to stay O(log n) (Red-Black). An unbalanced BST can degrade to O(n) for all operations (essentially a linked list). In practice, database B-trees and self-balancing structures keep operations fast.
+
+4. **How would you represent a tree structure in JavaScript for a UI (e.g., a category menu)?**
+   - As nested objects: `{id, name, children: [{id, name, children: [...]}]}`. This maps directly to recursive React component rendering. For flat data from an API (like Airtable), build the tree by creating a map of `id → node`, then assign children by iterating and linking `parentId`.
+
+5. **What is the height/depth of a tree and why does it affect performance?**
+   - Height = longest path from root to a leaf. Affects time complexity of all operations: a balanced tree of n nodes has height O(log n). Unbalanced can have height O(n). When interviewer asks "what's the time complexity?", always consider the worst case (skewed tree = O(n), balanced = O(log n)).
+
+**Behavioral Questions:**
+6. **"Tell me about a UI feature that involved rendering hierarchical/nested data. How did you structure both the data and the component?"**
+   - *STAR hint*: Nested navigation menu, category tree for e-commerce, organizational chart, or nested comment threads. Describe data shape (parent-child JSON), recursive React component (`TreeNode` calling itself), base case (no children = render leaf), styling each depth level.
+
+7. **"Describe how you built a multi-level navigation menu in a real project. What were the technical challenges?"**
+   - *STAR hint*: Mobile responsiveness, unknown depth, active state tracking across levels, accessibility (keyboard navigation). Describe data structure choice (nested JSON vs flat with parentId), recursion for render, and how you handled the "currently active" path highlight.
+
+8. **"Have you worked with hierarchical data from a CMS, database, or API? How did you transform and display it?"**
+   - *STAR hint*: Shopify navigation, WordPress categories, Airtable linked records, or a headless CMS. Data came flat (with parentId) or nested. Built a `buildTree(flatArray)` function to convert flat to nested, then rendered with a recursive component.
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Build a nested dropdown nav menu from a JS category tree `{name, children[]}` — recursively render `<ul>/<li>`, expand/collapse on click
+* ⬜ RW-2: Create a file explorer for a GoDaddy hosting panel mock — display folders/files as a tree, support expand/collapse of directories
+
+**React / Next.js:**
+* ⬜ RW-3: Build a Shopify-style category tree in React — render root → sub-categories → products as a collapsible `<TreeView>` component, highlight selected node
+* ⬜ RW-4: Create a Next.js dynamic breadcrumb component — parse the URL path `/shop/mens/t-shirts` as a tree traversal, render each node as a clickable link
+
+**Airtable API:**
+* ⬜ RW-5: Model Airtable linked records (Client → Projects → Tasks) as a tree in JS — render as a React org-chart style tree, show count per level
+* ⬜ RW-6: Build a category assignment UI — display Airtable categories as a tree with checkboxes, auto-check parent when all children are selected
+
+**Shopify:**
+* ⬜ RW-7: Parse Shopify's `menu` navigation object (tree-structured) — render a responsive multi-level nav bar with mobile hamburger toggle
+* ⬜ RW-8: Build a product filter tree — top level = category, second level = subcategory, leaf = product count — clicking a node filters the product grid
+
+**VPS / Server:**
+* ⬜ RW-9: Model your VPS directory structure as a tree object — implement DFS traversal to list all files sorted by last modified date, display indented
+* ⬜ RW-10: Build a server permission tree — root = admin, branches = departments, leaves = users — `hasPermission(userId, action)` traverses tree to check access
+
 ### **Day 14: Graphs \+ Dynamic Programming**
 
 * ✅ DFS, BFS, Adjacency List
@@ -2014,6 +2668,60 @@
 * ✅ Task 9: DP \- Coin change
 
 * ✅ Task 10: DP \- Longest common subsequence
+
+#### **Interview Questions & Behavioral**
+
+> 💼 3 years experience — Use **STAR format**: Situation → Task → Action → Result
+
+**Conceptual Questions:**
+1. **What is a graph? How does it differ from a tree?**
+   - Graph: nodes (vertices) connected by edges. Can have cycles, multiple paths between nodes, disconnected components. Tree is a special graph: connected, acyclic, exactly one path between any two nodes. Real-world graphs: social networks, road maps, dependencies, recommendation engines.
+
+2. **What is the difference between DFS and BFS? What data structure does each use internally?**
+   - DFS: Stack (recursive call stack or explicit). Goes deep before wide. Good for: path existence, topological sort, connected components. BFS: Queue. Goes wide before deep. Good for: shortest path (unweighted), level-by-level traversal, nearest nodes. Both O(V + E).
+
+3. **What is a DAG (Directed Acyclic Graph)? Give a real-world example.**
+   - Directed graph with no cycles. Examples: build/task dependency systems (task A must run before B), course prerequisites, spreadsheet cell dependencies. Topological sort gives a valid execution order. If a cycle exists, topological sort is impossible (deadlock).
+
+4. **What is dynamic programming? How is it different from plain recursion?**
+   - DP = recursion + memoization (top-down) or building up from base cases (bottom-up). Solves overlapping subproblems by storing results. Without DP, Fibonacci is O(2ⁿ); with DP it's O(n). Key insight: if a problem has overlapping subproblems and optimal substructure, DP applies.
+
+5. **What is the difference between top-down (memoization) and bottom-up (tabulation) DP?**
+   - Top-down: recursive + cache results as you go. More intuitive, starts from the final problem. Bottom-up: iterative, build from base cases upward. No recursion stack. Better space efficiency. For interviews: top-down (memoization) is often easier to derive; bottom-up is often what interviewers want to see next.
+
+**Behavioral Questions:**
+6. **"Tell me about a complex problem you solved that involved interconnected data — not just a list, but relationships between items."**
+   - *STAR hint*: Related products ("customers also bought"), user permission dependencies, service startup order. Describe how you modeled the data as a graph (nodes + edges), what traversal you used, and the specific value it delivered (recommendations, correct boot order, access control).
+
+7. **"Have you ever implemented a 'recommended items' or 'related content' feature? How did you approach the data model and algorithm?"**
+   - *STAR hint*: Related products based on shared tags (graph: products = nodes, shared tag = edge), related Airtable records, or "other customers also viewed." Describe how you built the relationship model, how you traversed it (BFS for nearest neighbors), and how you limited results to top 3-5.
+
+8. **"Describe a situation where caching/memoization dramatically improved the performance of a calculation or data operation in your app."**
+   - *STAR hint*: A price calculator with nested discount rules recalculating on every render, or resolving Airtable linked records repeatedly. Added memoization with a `Map` or `useMemo` in React. Describe the before/after performance and how you measured the improvement (React Profiler, timer).
+
+#### **Real-World Tasks (Your Tech Stack)**
+
+> 🕐 Pick 1-2 per session. Each task = 15–30 min of focused practice.
+
+**HTML/CSS/JS:**
+* ⬜ RW-1: Model a static site navigation as a graph — nodes = pages, edges = internal links — use BFS to find the shortest click-path between any two pages
+* ⬜ RW-2: Build a "related articles" feature using a graph — pages share edges if they share tags — DFS from current page to suggest 3 related pages
+
+**React / Next.js:**
+* ⬜ RW-3: Build a Next.js "related products" section using a graph — products are nodes, shared tags/categories are edges — recommend top 3 connected products
+* ⬜ RW-4: Use DP (memoization) to optimize a React product pricing calculator — `getBestPrice(productId, qty, coupon)` caches results so repeated renders are instant
+
+**Airtable API:**
+* ⬜ RW-5: Model Airtable table relationships as a graph — tables = nodes, linked record fields = edges — detect circular references (e.g., Task linked to itself via Project)
+* ⬜ RW-6: Use DP with memoization to resolve Airtable linked records — cache already-fetched records by ID to avoid re-fetching the same record multiple times
+
+**Shopify:**
+* ⬜ RW-7: Use DP to find the optimal set of discount codes to minimize total cart price — given `n` coupons with different rules, find the best non-conflicting combination
+* ⬜ RW-8: Model Shopify product upsell/cross-sell relationships as a graph — given a product in cart, use BFS to find the best complementary product (2 hops away)
+
+**VPS / Server:**
+* ⬜ RW-9: Model VPS server dependencies as a DAG (directed acyclic graph) — services = nodes, dependencies = edges — use topological sort to find startup order
+* ⬜ RW-10: Use DP to calculate the optimal deployment plan for a GoDaddy VPS — given N files with sizes and a bandwidth limit, maximize files deployed per deploy (0/1 knapsack)
 
 ---
 
